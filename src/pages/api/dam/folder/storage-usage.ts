@@ -1,0 +1,42 @@
+import db from 'db'
+import { NextApiRequest, NextApiResponse } from 'next'
+
+import nc from 'next-connect'
+import { getFolderContent } from '@controllers/dam'
+import s3 from '@services/s3'
+import humanFileSize from '@lib/human-file-size'
+
+const handler = nc().get(async (req: NextApiRequest, res: NextApiResponse) => {
+  const userId = '123'
+
+  const folderId = req.query.folder_id as string
+
+  const folder = await db.folder.findUnique({
+    where: {
+      id: folderId || '1234'
+    }
+  })
+
+  let totalSize = 0,
+    files = 0,
+    ContinuationToken
+
+  do {
+    var resp = await s3
+      .listObjectsV2({
+        Bucket: 'hnrk-files',
+        Prefix: `files/${userId}`,
+        ContinuationToken
+      })
+      .promise()
+    resp.Contents.forEach((o) => {
+      totalSize += o.Size
+      files += 1
+    })
+    ContinuationToken = resp.NextContinuationToken
+  } while (ContinuationToken)
+
+  res.send({ files, size: humanFileSize(totalSize) })
+})
+
+export default handler

@@ -9,6 +9,9 @@ module.exports = {
   darkMode: 'media',
   theme: {
     extend: {
+      gridTemplateColumns: {
+        'fill-40': 'repeat(auto-fit, 10rem)'
+      },
       colors: {
         transparent: 'transparent',
         black: '#000',
@@ -16,16 +19,31 @@ module.exports = {
         background: {
           100: '#fff'
         },
+        gray: {
+          DEFAULT: '#202222',
+          50: '#114113112',
+          100: '#575c5e',
+          200: '#404547',
+          300: '#363b3d',
+          400: '#2b2e30',
+          500: '#242729',
+          600: '#161718',
+          700: '#1E2024',
+          800: '#151617',
+          900: '#131414'
+        },
         primary: {
-          100: '#D8FBED',
-          200: '#B3F7E1',
-          300: '#88E7D2',
-          400: '#65D0C1',
-          500: '#38B2AC',
-          600: '#289499',
-          700: '#1C7380',
-          800: '#115467',
-          900: '#0A3E55'
+          DEFAULT: '#4C1CAF',
+          50: '#CFBCF4',
+          100: '#BFA6F1',
+          200: '#9F7AEA',
+          300: '#7F4EE3',
+          400: '#5F23DB',
+          500: '#4C1CAF',
+          600: '#391583',
+          700: '#260E57',
+          800: '#13072B',
+          900: '#000000'
         },
         secondary: {
           100: '#D8E5FB',

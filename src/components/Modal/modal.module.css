@@ -1,0 +1,26 @@
+.Modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  min-width: 500px;
+  outline: none;
+  color: white;
+  @apply bg-gray-800;
+  border-radius: 0.5rem;
+  @apply shadow-xl;
+  @apply p-4;
+}
+
+.Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.25);
+  overflow-y: auto;
+}
