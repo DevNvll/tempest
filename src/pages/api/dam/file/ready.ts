@@ -1,13 +1,14 @@
 import nc from 'next-connect'
 import { NextApiRequest, NextApiResponse } from 'next'
 import s3 from 'services/s3'
+import { BUCKET, S3_FILES_PREFIX, S3_THUMBNAILS_PREFIX } from '@constants/app'
 
 const handler = nc<NextApiRequest, NextApiResponse>().get(async (req, res) => {
   const { key } = req.query
   try {
     await s3.headObject({
-      Key: 'thumbnails/' + (key as string).replace('files/', ''),
-      Bucket: 'hnrk-files'
+      Key: S3_THUMBNAILS_PREFIX + (key as string).replace(S3_FILES_PREFIX, ''),
+      Bucket: BUCKET
     })
     res.send({ ready: true })
   } catch (e) {

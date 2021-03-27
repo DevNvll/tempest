@@ -2,8 +2,7 @@ import s3 from '@services/s3'
 import sharp from 'sharp'
 import db from 'db'
 import { NextApiRequest, NextApiResponse } from 'next'
-
-const BUCKET = process.env.AWS_BUCKET
+import { BUCKET, S3_FILES_PREFIX, S3_THUMBNAILS_PREFIX } from '@constants/app'
 
 export default async function handler(
   req: NextApiRequest,
@@ -26,7 +25,7 @@ export default async function handler(
     try {
       await s3
         .headObject({
-          Key: process.env.THUMBNAILS_BUCKET_PREFIX + '' + file.storageKey,
+          Key: S3_THUMBNAILS_PREFIX + '' + file.storageKey,
           Bucket: BUCKET
         })
         .promise()
@@ -34,7 +33,7 @@ export default async function handler(
       const thumb = s3
         .getObject({
           Bucket: BUCKET,
-          Key: process.env.THUMBNAILS_BUCKET_PREFIX + file.storageKey
+          Key: S3_THUMBNAILS_PREFIX + file.storageKey
         })
         .createReadStream()
 
@@ -45,7 +44,7 @@ export default async function handler(
       const data = await s3
         .getObject({
           Bucket: BUCKET,
-          Key: process.env.FILES_BUCKET_PREFIX + file.storageKey
+          Key: S3_FILES_PREFIX + file.storageKey
         })
         .promise()
 
@@ -58,7 +57,7 @@ export default async function handler(
         Body: resizedImage,
         Bucket: BUCKET,
         ContentType: 'image/png',
-        Key: process.env.THUMBNAILS_BUCKET_PREFIX + file.storageKey
+        Key: S3_THUMBNAILS_PREFIX + file.storageKey
       })
 
       res.setHeader('Content-Type', 'image/png')

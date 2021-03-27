@@ -3,9 +3,10 @@ import { NextApiRequest, NextApiResponse } from 'next'
 
 import db from 'db'
 import s3 from 'services/s3'
-import { getThumbnail } from 'services/dam'
+
 import { getFileInfo } from '@controllers/dam'
 import humanFileSize from '@lib/human-file-size'
+import { BUCKET, S3_FILES_PREFIX, S3_THUMBNAILS_PREFIX } from '@constants/app'
 
 const handler = nc<NextApiRequest, NextApiResponse>()
   .get(async (req, res) => {
@@ -26,22 +27,6 @@ const handler = nc<NextApiRequest, NextApiResponse>()
       readableSize: humanFileSize(fileInfo.ContentLength),
       size: fileInfo.ContentLength
     })
-  })
-  .post(async (req, res) => {
-    const { key, name, parentId } = req.body
-
-    const userId = '123'
-
-    const file = await s3
-      .headObject({
-        Key: 'files/' + key,
-        Bucket: 'hnrk-files'
-      })
-      .promise()
-
-    const thumb = await getThumbnail(key)
-
-    res.send(thumb)
   })
   .delete(async (req, res) => {
     const fileId = req.query.file_id as string
@@ -73,14 +58,14 @@ const handler = nc<NextApiRequest, NextApiResponse>()
       }),
       s3
         .deleteObject({
-          Key: 'files/' + file.storageKey,
-          Bucket: 'hnrk-files'
+          Key: S3_FILES_PREFIX + file.storageKey,
+          Bucket: BUCKET
         })
         .promise(),
       s3
         .deleteObject({
-          Key: 'thumbnails/' + file.storageKey,
-          Bucket: 'hnrk-files'
+          Key: S3_THUMBNAILS_PREFIX + file.storageKey,
+          Bucket: BUCKET
         })
         .promise()
     ])

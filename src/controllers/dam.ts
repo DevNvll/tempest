@@ -1,16 +1,16 @@
+import { BUCKET, S3_FILES_PREFIX } from '@constants/app'
 import humanFileSize from '@lib/human-file-size'
 import s3 from '@services/s3'
 
 import db from 'db'
-import { getThumbnail } from 'services/dam'
 
 const thumbEnabledExtensions = ['png', 'jpg', 'jpeg']
 
 export async function getFileInfo(key: string) {
   const file = await s3
     .headObject({
-      Key: 'files/' + key,
-      Bucket: 'hnrk-files'
+      Key: S3_FILES_PREFIX + key,
+      Bucket: BUCKET
     })
     .promise()
   return file
@@ -98,13 +98,6 @@ export async function getFolderContent(userId: string, folderId?: string) {
   files = await Promise.all(
     files.map(async (f: any) => {
       try {
-        if (
-          f.mimeType === 'image' &&
-          thumbEnabledExtensions.includes(f.mimeSubtype)
-        ) {
-          const thumbUrl = await getThumbnail(f.storageKey)
-          f.thumbnailUrl = thumbUrl || null
-        }
         const fileInfo = await getFileInfo(f.storageKey)
         f.size = humanFileSize(fileInfo.ContentLength)
       } catch (err) {

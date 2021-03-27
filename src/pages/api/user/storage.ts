@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import nc from 'next-connect'
 import s3 from '@services/s3'
 import humanFileSize from '@lib/human-file-size'
+import { BUCKET, S3_FILES_PREFIX } from '@constants/app'
 
 const MAX_SIZE = 16106127360
 
@@ -25,8 +26,8 @@ const handler = nc().get(async (req: NextApiRequest, res: NextApiResponse) => {
   do {
     var resp = await s3
       .listObjectsV2({
-        Bucket: 'hnrk-files',
-        Prefix: `files/${userId}`,
+        Bucket: BUCKET,
+        Prefix: `${S3_FILES_PREFIX}${userId}`,
         ContinuationToken
       })
       .promise()
