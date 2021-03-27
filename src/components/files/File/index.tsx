@@ -21,7 +21,7 @@ const File = ({
   onClick,
   selected = false
 }) => {
-  const contextMenuId = 'context-menu-file' + name
+  const contextMenuId = 'context-menu-file-' + id
   const router = useRouter()
   const files = useFiles()
   const preview = usePreview()
@@ -30,35 +30,6 @@ const File = ({
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id
   })
-
-  async function handleClick(e, data) {
-    hideMenu()
-    switch (data.action) {
-      case 'VIEW': {
-        router.push('/file/' + data.id)
-        return
-      }
-      case 'DELETE': {
-        await files.operations.deleteItem({ id, type: 'file' })
-        files.operations.refetch()
-        return
-      }
-      case 'RENAME': {
-        ui.openModal({
-          modalType: 'Rename',
-          props: {
-            id,
-            type: 'file',
-            onRename: async ({ id, newName }) => {
-              await files.operations.renameItem({ id, type: 'file', newName })
-              files.operations.refetch()
-            }
-          }
-        })
-        return
-      }
-    }
-  }
 
   return (
     <>
@@ -71,9 +42,9 @@ const File = ({
         <div>
           <div className="group directory-item">
             <ContextMenuTrigger
-              id={contextMenuId}
+              id="file-context-menu"
               collect={() => {
-                return { id }
+                return { id, type: 'file' }
               }}
               holdToDisplay={999999}
               attributes={{
@@ -131,30 +102,6 @@ const File = ({
                 <p className="text-xs font-light">{size}</p>
               </div>
             </ContextMenuTrigger>
-            <ContextMenu
-              id={contextMenuId}
-              className="bg-gray-500 rounded overflow-hidden shadow-lg w-56 z-20"
-            >
-              <MenuItem
-                onClick={handleClick}
-                label="View"
-                Icon={MdViewAgenda}
-                data={{ action: 'VIEW' }}
-              />
-              <MenuItem
-                onClick={handleClick}
-                label="Rename"
-                Icon={MdEdit}
-                data={{ action: 'RENAME' }}
-              />
-              <MenuItem
-                onClick={handleClick}
-                label="Delete"
-                Icon={MdDelete}
-                data={{ action: 'DELETE' }}
-                danger
-              />
-            </ContextMenu>
           </div>
         </div>
       </div>

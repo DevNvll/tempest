@@ -9,7 +9,12 @@ import { useRouter } from 'next/router'
 import { MouseEvent } from 'react'
 import { ContextMenu, ContextMenuTrigger, hideMenu } from 'react-contextmenu'
 import { HiChevronLeft, HiPlus } from 'react-icons/hi'
-import { MdCreateNewFolder } from 'react-icons/md'
+import {
+  MdCreateNewFolder,
+  MdDelete,
+  MdEdit,
+  MdViewAgenda
+} from 'react-icons/md'
 import File from '../File'
 import Sidebar from '../Sidebar'
 import FileDragOverlay from '../DragOverlay'
@@ -19,6 +24,7 @@ import { UploadProgress } from '../UploadProgress'
 import PreviewPane from '../PreviewPane'
 import { usePreview } from '@store/preview'
 import { useUI } from '@store/ui'
+import ContextMenus from '../ContextMenus'
 
 export default function FilesDirectory() {
   const {
@@ -28,7 +34,9 @@ export default function FilesDirectory() {
       clearSelection,
       handleSelect,
       findById,
-      createFolder
+      createFolder,
+      deleteItem,
+      renameItem
     }
   } = useFiles()
   const router = useRouter()
@@ -41,18 +49,6 @@ export default function FilesDirectory() {
     }
   })
 
-  function handleBackgroundContextClick(e, data) {
-    ui.openModal({
-      modalType: 'CreateFolder',
-      props: {
-        parentId: folderId,
-        onCreate: ({ parentId, name }) => {
-          createFolder(parentId, name)
-        }
-      }
-    })
-  }
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -60,6 +56,75 @@ export default function FilesDirectory() {
       }
     })
   )
+
+  async function handleContextClick(e, data) {
+    hideMenu()
+    const id = data.id
+
+    if (data.type === 'file') {
+      switch (data.action) {
+        case 'VIEW': {
+          router.push('/file/' + data.id)
+          return
+        }
+        case 'DELETE': {
+          await deleteItem({ id, type: 'file' })
+          refetch()
+          return
+        }
+        case 'RENAME': {
+          ui.openModal({
+            modalType: 'Rename',
+            props: {
+              id,
+              type: 'file',
+              onRename: async ({ id, newName }) => {
+                await renameItem({ id, type: 'file', newName })
+                refetch()
+              }
+            }
+          })
+          return
+        }
+      }
+    } else if (data.type === 'folder') {
+      switch (data.action) {
+        case 'VIEW': {
+          router.push('/folder/' + data.id)
+          return
+        }
+        case 'DELETE': {
+          await deleteItem({ id, type: 'folder' })
+          refetch()
+          return
+        }
+        case 'RENAME': {
+          ui.openModal({
+            modalType: 'Rename',
+            props: {
+              id,
+              type: 'folder',
+              onRename: async ({ id, newName }) => {
+                await renameItem({ id, type: 'folder', newName })
+                refetch()
+              }
+            }
+          })
+          return
+        }
+      }
+    } else if (data.type === 'background') {
+      ui.openModal({
+        modalType: 'CreateFolder',
+        props: {
+          parentId: folderId,
+          onCreate: ({ parentId, name }) => {
+            createFolder(parentId, name)
+          }
+        }
+      })
+    }
+  }
 
   return (
     <div
@@ -131,7 +196,8 @@ export default function FilesDirectory() {
                 id="bg"
                 holdToDisplay={99999999}
                 collect={() => ({
-                  folderId
+                  folderId,
+                  type: 'background'
                 })}
                 attributes={{
                   onClick: (e) => {
@@ -209,20 +275,10 @@ export default function FilesDirectory() {
                     <BarLoader color="#4C1CAF" />
                   </div>
                 )}
-
-                <ContextMenu
-                  id="bg"
-                  className="bg-gray-500 rounded overflow-hidden shadow-lg w-56"
-                >
-                  <MenuItem
-                    onClick={handleBackgroundContextClick}
-                    label="Create Folder"
-                    Icon={MdCreateNewFolder}
-                  />
-                </ContextMenu>
               </ContextMenuTrigger>
             </DndContext>
           </div>
+          <ContextMenus handleContextClick={handleContextClick} />
           <PreviewPane />
         </div>
       </div>
