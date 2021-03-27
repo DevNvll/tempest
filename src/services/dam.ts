@@ -1,3 +1,4 @@
+import { ItemType } from '@typings/files'
 import axios from 'axios'
 import { apiClient } from './api'
 import s3 from './s3'
@@ -64,7 +65,43 @@ export async function uploadFile(file: File, parentId: string, onProgress) {
   }
 }
 
-export async function deleteFile(fileId: string) {
-  await apiClient.delete('/dam/file/' + fileId)
-  return true
+export async function deleteItem({ type, id }: { type: ItemType; id: string }) {
+  if (type === 'file') {
+    await apiClient.delete('/dam/file/' + id)
+    return true
+  } else if (type === 'folder') {
+    await apiClient.delete('/dam/folder/' + id)
+    return true
+  }
+}
+
+export async function createFolder({
+  parentId,
+  name
+}: {
+  parentId: string
+  name: string
+}) {
+  const { data: folder } = await apiClient.post('/dam/folder/', {
+    parentId,
+    name
+  })
+  return folder
+}
+
+export async function renameItem({
+  id,
+  type,
+  newName
+}: {
+  id: string
+  type: ItemType
+  newName: string
+}) {
+  if (type === 'file') {
+    const { data: folder } = await apiClient.patch('/dam/file/' + id, {
+      name: newName
+    })
+    return folder
+  }
 }

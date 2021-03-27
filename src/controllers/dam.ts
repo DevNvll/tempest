@@ -43,7 +43,8 @@ export async function getFolderContent(userId: string, folderId?: string) {
                 }
               }
             }),
-        userId: userId
+        userId: userId,
+        isDeleted: false
       }
     }
   })
@@ -88,7 +89,8 @@ export async function getFolderContent(userId: string, folderId?: string) {
                 }
               }
             }),
-        userId: userId
+        userId: userId,
+        isDeleted: false
       }
     }
   })
@@ -118,4 +120,16 @@ export async function getFolderContent(userId: string, folderId?: string) {
     files
   }
   return content
+}
+
+export async function deleteFolder(folderId: string) {
+  const folder = await db.folder.update({
+    where: {
+      id: folderId
+    },
+    data: {
+      isDeleted: true
+    }
+  })
+  return folder
 }

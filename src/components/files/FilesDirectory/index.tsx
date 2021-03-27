@@ -18,14 +18,22 @@ import UploadButton from '../UploadButton'
 import { UploadProgress } from '../UploadProgress'
 import PreviewPane from '../PreviewPane'
 import { usePreview } from '@store/preview'
+import { useUI } from '@store/ui'
 
-export default function FilesDirectory({ folderId }) {
+export default function FilesDirectory() {
+  const {
+    state: { folder, selectedItems, loaded, empty, folderId },
+    operations: {
+      refetch,
+      clearSelection,
+      handleSelect,
+      findById,
+      createFolder
+    }
+  } = useFiles()
   const router = useRouter()
   const preview = usePreview()
-  const {
-    state: { folder, selectedItems, loaded, empty },
-    operations: { refetch, clearSelection, handleSelect, findById }
-  } = useFiles()
+  const ui = useUI()
 
   useUpload.subscribe((prev, next) => {
     if (next.progress === 100) {
@@ -33,8 +41,16 @@ export default function FilesDirectory({ folderId }) {
     }
   })
 
-  function handleClick(e, data) {
-    console.log(data)
+  function handleBackgroundContextClick(e, data) {
+    ui.openModal({
+      modalType: 'CreateFolder',
+      props: {
+        parentId: folderId,
+        onCreate: ({ parentId, name }) => {
+          createFolder(parentId, name)
+        }
+      }
+    })
   }
 
   const sensors = useSensors(
@@ -115,7 +131,7 @@ export default function FilesDirectory({ folderId }) {
                 id="bg"
                 holdToDisplay={99999999}
                 collect={() => ({
-                  folderId: null
+                  folderId
                 })}
                 attributes={{
                   onClick: (e) => {
@@ -199,7 +215,7 @@ export default function FilesDirectory({ folderId }) {
                   className="bg-gray-500 rounded overflow-hidden shadow-lg w-56"
                 >
                   <MenuItem
-                    onClick={handleClick}
+                    onClick={handleBackgroundContextClick}
                     label="Create Folder"
                     Icon={MdCreateNewFolder}
                   />

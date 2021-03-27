@@ -1,6 +1,6 @@
-import { getFolder, getRootFolder } from '@services/dam'
+import * as services from '@services/dam'
 import { ModalTypes } from 'constants/modal'
-import { useQuery } from 'react-query'
+import { useMutation, useQuery } from 'react-query'
 import { ItemType } from 'typings/files'
 import { ModalType } from 'typings/ui'
 import create from 'zustand'
@@ -51,7 +51,8 @@ function useFiles(folderId?: string) {
     refetch
   } = useQuery(
     '/dam/folders/' + (_folderId || ''),
-    () => (_folderId ? getFolder(_folderId) : getRootFolder()),
+    () =>
+      _folderId ? services.getFolder(_folderId) : services.getRootFolder(),
     { enabled: _folderId !== null || !!_folderId }
   )
 
@@ -126,6 +127,28 @@ function useFiles(folderId?: string) {
     return allItems.find((i) => i.id === id)
   }
 
+  const createFolderMutation = useMutation('/dam/folder', services.createFolder)
+
+  const createFolder = (parentId: string, name: string) =>
+    createFolderMutation.mutateAsync({ parentId, name })
+
+  const renameItemMutation = useMutation('/dam/', services.renameItem)
+
+  const renameItem = async ({
+    id,
+    newName,
+    type
+  }: {
+    id: string
+    newName: string
+    type: ItemType
+  }) => renameItemMutation.mutateAsync({ id, newName, type })
+
+  const deleteItemMutation = useMutation('/dam/', services.deleteItem)
+
+  const deleteItem = async ({ type, id }: { id: string; type: ItemType }) =>
+    deleteItemMutation.mutateAsync({ id, type })
+
   return {
     state: {
       folderId: _folderId,
@@ -142,7 +165,10 @@ function useFiles(folderId?: string) {
       handleSelect,
       clearSelection,
       setSelectedItems,
-      findById
+      findById,
+      createFolder,
+      renameItem,
+      deleteItem
     }
   }
 }

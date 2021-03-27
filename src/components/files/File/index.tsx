@@ -1,16 +1,16 @@
-import { memo, useEffect } from 'react'
+import { memo } from 'react'
 import { useRouter } from 'next/router'
 import { ContextMenu, ContextMenuTrigger } from 'react-contextmenu'
-import { useDraggable, useDroppable } from '@dnd-kit/core'
-import { MdDelete, MdEdit, MdFolder, MdViewAgenda } from 'react-icons/md'
+import { useDraggable } from '@dnd-kit/core'
+import { MdDelete, MdEdit, MdViewAgenda } from 'react-icons/md'
 import cs from 'clsx'
 
 import MenuItem from '@components/UI/MenuItem'
-import { HiDocument, HiOutlineCheck } from 'react-icons/hi'
-import { deleteFile } from '@services/dam'
+import { HiDocument } from 'react-icons/hi'
 import { useFiles } from '@store/files'
 import { hideMenu } from 'react-contextmenu/modules/actions'
 import { usePreview } from '@store/preview'
+import { useUI } from '@store/ui'
 
 const File = ({
   id,
@@ -21,15 +21,16 @@ const File = ({
   onClick,
   selected = false
 }) => {
+  const contextMenuId = 'context-menu-file' + name
   const router = useRouter()
   const files = useFiles()
   const preview = usePreview()
+  const ui = useUI()
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id
   })
 
-  const contextMenuId = 'context-menu-file' + name
   async function handleClick(e, data) {
     hideMenu()
     switch (data.action) {
@@ -38,8 +39,23 @@ const File = ({
         return
       }
       case 'DELETE': {
-        await deleteFile(data.id)
+        await files.operations.deleteItem({ id, type: 'file' })
         files.operations.refetch()
+        return
+      }
+      case 'RENAME': {
+        ui.openModal({
+          modalType: 'Rename',
+          props: {
+            id,
+            type: 'file',
+            onRename: async ({ id, newName }) => {
+              await files.operations.renameItem({ id, type: 'file', newName })
+              files.operations.refetch()
+            }
+          }
+        })
+        return
       }
     }
   }
@@ -117,7 +133,7 @@ const File = ({
             </ContextMenuTrigger>
             <ContextMenu
               id={contextMenuId}
-              className="bg-gray-500 rounded overflow-hidden shadow-lg w-56"
+              className="bg-gray-500 rounded overflow-hidden shadow-lg w-56 z-20"
             >
               <MenuItem
                 onClick={handleClick}

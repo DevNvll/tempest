@@ -9,10 +9,14 @@ import MenuItem from '@components/UI/MenuItem'
 import { HiOutlineCheck } from 'react-icons/hi'
 import { useFiles } from '@store/files'
 import { usePreview } from '@store/preview'
+import { useUI } from '@store/ui'
 
 const Folder = ({ id, name, numberOfItems = 0, onClick, selected = false }) => {
-  const { state } = useFiles()
+  const contextMenuId = 'context-menu-folder' + name
+  const router = useRouter()
+  const { state, operations } = useFiles()
   const preview = usePreview()
+  const ui = useUI()
   const {
     attributes,
     listeners,
@@ -33,12 +37,29 @@ const Folder = ({ id, name, numberOfItems = 0, onClick, selected = false }) => {
         : active === id
   })
 
-  const router = useRouter()
-  const contextMenuId = 'context-menu-folder' + name
-  function handleClick(e, data) {
+  async function handleClick(e, data) {
     switch (data.action) {
       case 'VIEW': {
         router.push('/folder/' + data.id)
+        return
+      }
+      case 'DELETE': {
+        await operations.deleteItem({ id, type: 'folder' })
+        operations.refetch()
+        return
+      }
+      case 'RENAME': {
+        ui.openModal({
+          modalType: 'Rename',
+          props: {
+            id,
+            type: 'folder',
+            onRename: async ({ id, newName }) => {
+              await operations.renameItem({ id, type: 'folder', newName })
+              operations.refetch()
+            }
+          }
+        })
         return
       }
     }
@@ -96,7 +117,7 @@ const Folder = ({ id, name, numberOfItems = 0, onClick, selected = false }) => {
             </ContextMenuTrigger>
             <ContextMenu
               id={contextMenuId}
-              className="bg-gray-500 rounded overflow-hidden shadow-lg w-56"
+              className="bg-gray-500 rounded overflow-hidden shadow-lg w-56 z-20"
             >
               <MenuItem
                 onClick={handleClick}
