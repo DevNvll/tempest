@@ -1,7 +1,6 @@
 import { ItemType } from '@typings/files'
 import axios from 'axios'
 import { apiClient } from './api'
-import s3 from './s3'
 
 export async function getRootFolder() {
   const { data } = await apiClient.get('dam/folder/')
@@ -16,14 +15,6 @@ export async function getFolder(folderId: string) {
 export async function getFile(fileId: string) {
   const { data } = await apiClient.get('dam/file/' + fileId)
   return data
-}
-
-export async function getThumbnail(key: string) {
-  const file = await s3.getSignedUrl('getObject', {
-    Key: 'thumbnails/' + key,
-    Bucket: 'hnrk-files'
-  })
-  return file
 }
 
 export async function uploadFile(file: File, parentId: string, onProgress) {
