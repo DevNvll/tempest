@@ -31,15 +31,13 @@ export default async function handler(
         })
         .promise()
 
-      const thumb = s3
-        .getObject({
-          Bucket: BUCKET,
-          Key: S3_THUMBNAILS_PREFIX + file.storageKey
-        })
-        .createReadStream()
+      const thumb = s3.getSignedUrl('getObject', {
+        Bucket: BUCKET,
+        Key: S3_THUMBNAILS_PREFIX + file.storageKey
+      })
 
-      res.setHeader('Content-Type', 'image/png')
-      thumb.pipe(res)
+      res.setHeader('location', thumb)
+      res.status(301).send('')
       return
     } catch (err) {
       const data = await s3
@@ -54,12 +52,14 @@ export default async function handler(
         .toFormat('png')
         .toBuffer()
 
-      await s3.putObject({
-        Body: resizedImage,
-        Bucket: BUCKET,
-        ContentType: 'image/png',
-        Key: S3_THUMBNAILS_PREFIX + file.storageKey
-      })
+      await s3
+        .putObject({
+          Body: resizedImage,
+          Bucket: BUCKET,
+          ContentType: 'image/png',
+          Key: S3_THUMBNAILS_PREFIX + file.storageKey
+        })
+        .promise()
 
       res.setHeader('Content-Type', 'image/png')
       res.send(resizedImage)
