@@ -4,3 +4,6 @@ package-lock.json
 yarn.lock
 .env
 *.log
+.tfstate
+.terraform
+.terraform*
