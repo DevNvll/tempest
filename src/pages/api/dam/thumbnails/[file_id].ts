@@ -18,10 +18,11 @@ export default async function handler(
       }
     })
 
-    if (!file || file.userId !== userId) {
+    if (!file || file.userId !== userId || file.mimeType !== 'image') {
       res.status(404).send('Not Found')
       return
     }
+
     try {
       await s3
         .headObject({
