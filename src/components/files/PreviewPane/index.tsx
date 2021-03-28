@@ -1,15 +1,18 @@
 import { usePreview } from '@store/preview'
+import { useRouter } from 'next/router'
 import {
-  HiEyeOff,
   HiOutlineDocument,
   HiOutlineEyeOff,
   HiOutlineFolder,
-  HiOutlinePhotograph,
-  HiPhotograph
+  HiOutlinePhotograph
 } from 'react-icons/hi'
 
 export default function PreviewPane() {
   const preview = usePreview()
+  const router = useRouter()
+  router.events.on('routeChangeStart', () => {
+    preview.clear()
+  })
 
   function renderIcon() {
     switch (preview.item?.mimeType) {
