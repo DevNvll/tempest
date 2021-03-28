@@ -26,7 +26,8 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
     const signedUrl = await s3.getSignedUrl('getObject', {
       Bucket: BUCKET,
-      Key: S3_FILES_PREFIX + file.storageKey
+      Key: S3_FILES_PREFIX + file.storageKey,
+      ResponseContentDisposition: 'attachment;filename=' + file.name
     })
 
     res.send({
