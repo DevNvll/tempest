@@ -29,6 +29,7 @@ model Folder {
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   isDeleted Boolean  @default(false)
+  isRoot    Boolean  @default(false)
 }
 
 model File {

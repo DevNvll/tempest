@@ -2,6 +2,8 @@ import Progress from '@components/UI/Progress'
 import { useFiles } from '@store/files'
 import { useStorage } from '@store/usage'
 import clsx from 'clsx'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import {
   HiChevronRight,
   HiOutlineCloudUpload,
@@ -13,8 +15,60 @@ import {
 } from 'react-icons/hi'
 import UploadButton from '../UploadButton'
 
+function MenuItem({ label, href = '', variant = 'default', Icon }) {
+  const router = useRouter()
+
+  function isRoute(route: string) {
+    return router.pathname === route
+  }
+
+  const variants = {
+    danger: {
+      active: 'hover:bg-primary-500 hover:bg-opacity-10 text-danger-500',
+      inactive: 'hover:bg-primary-500 hover:bg-opacity-10 hover:text-danger-500'
+    },
+    default: {
+      active: 'hover:bg-primary-500 hover:bg-opacity-10 text-primary-300',
+      inactive:
+        'hover:bg-primary-500 hover:bg-opacity-10 hover:text-primary-300'
+    },
+    disabled: {
+      active: 'hover:bg-primary-500 hover:bg-opacity-10 text-primary-300 ',
+      inactive: 'opacity-50 cursor-default'
+    }
+  }
+
+  const Wrapper = ({ children }) => {
+    return href ? (
+      <Link href={href}>
+        <a>{children}</a>
+      </Link>
+    ) : (
+      <>{children}</>
+    )
+  }
+
+  return (
+    <Wrapper>
+      <li
+        className={clsx(
+          'flex flex-row space-x-2 px-6 py-3 items-center text-sm font-semibold cursor-pointer transition-all ease-in-out duration-150',
+          {
+            [variants[variant].active]: isRoute(href),
+            [variants[variant].inactive]: !isRoute(href)
+          }
+        )}
+      >
+        <Icon />
+        <span>{label}</span>
+      </li>
+    </Wrapper>
+  )
+}
+
 export default function Sidebar() {
   const { usage } = useStorage()
+
   return (
     <>
       <div className="flex-grow flex flex-col">
@@ -22,42 +76,18 @@ export default function Sidebar() {
           Base
         </span>
         <ul className="flex flex-col pb-4">
-          <li
-            className={clsx(
-              'flex flex-row space-x-2 px-6 py-3 items-center text-sm font-semibold cursor-pointer transition-all ease-in-out duration-150',
-              {
-                'hover:bg-primary-500 hover:bg-opacity-10 hover:text-primary-300': false,
-                'hover:bg-primary-500 hover:bg-opacity-10 text-primary-300': true
-              }
-            )}
-          >
-            <HiOutlineHome />
-            <span>My Files</span>
-          </li>
-          <li
-            className={clsx(
-              'flex flex-row space-x-2 px-6 py-3 items-center text-sm font-semibold cursor-pointer transition-all ease-in-out duration-150',
-              {
-                'hover:bg-primary-500 hover:bg-opacity-10 hover:text-primary-300': true,
-                'hover:bg-primary-500 hover:bg-opacity-10 text-primary-300': false
-              }
-            )}
-          >
-            <HiOutlineCloudUpload />
-            <span>Recent Uploads</span>
-          </li>
-          <li
-            className={clsx(
-              'flex flex-row space-x-2 px-6 py-3 items-center text-sm font-semibold cursor-pointer transition-all ease-in-out duration-150',
-              {
-                'hover:bg-primary-500 hover:bg-opacity-10 hover:text-danger-500': true,
-                'hover:bg-primary-500 hover:bg-opacity-10 text-primary-300': false
-              }
-            )}
-          >
-            <HiOutlineTrash />
-            <span>Trash</span>
-          </li>
+          <MenuItem label="My Files" href="/files" Icon={HiOutlineHome} />
+          <MenuItem
+            label="Recent Uploads"
+            variant="disabled"
+            Icon={HiOutlineCloudUpload}
+          />
+          <MenuItem
+            label="Trash"
+            href="/files/trash"
+            variant="danger"
+            Icon={HiOutlineTrash}
+          />
         </ul>
         <span className="text-primary-300 font-bold text-xs px-6 pb-2">
           Navigation

@@ -89,7 +89,7 @@ const Folder = ({
               </div>
               <div className="text-center w-full mt-2  space-y-2">
                 <div
-                  contentEditable
+                  contentEditable={state.mode === 'files'}
                   className="font-bold text-sm break-words overflow-hidden bg-transparent cursor-pointer w-full"
                   onBlur={async (e) => {
                     if (name === initialName) return

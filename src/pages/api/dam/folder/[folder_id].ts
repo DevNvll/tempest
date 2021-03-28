@@ -57,7 +57,8 @@ const handler = nc<NextApiRequest, NextApiResponse>()
   })
   .delete(async (req, res) => {
     const folderId = req.query.folder_id as string
-    const content = await deleteFolder(folderId)
+    const userId = '123'
+    const content = await deleteFolder(folderId, userId)
 
     res.send(content)
   })

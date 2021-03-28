@@ -53,7 +53,7 @@ function useFiles(folderId?: string) {
     '/dam/folders/' + (_folderId || ''),
     () =>
       _folderId ? services.getFolder(_folderId) : services.getRootFolder(),
-    { enabled: _folderId !== null || !!_folderId }
+    { enabled: _folderId !== undefined || !!_folderId }
   )
 
   const loaded = useMemo(() => isSuccess && !isLoading, [isSuccess, isLoading])
@@ -61,6 +61,14 @@ function useFiles(folderId?: string) {
     () => folder && !folder.files.length && !folder.folders.length,
     [folder]
   )
+
+  function getMode() {
+    if (router.pathname.startsWith('/files/trash')) {
+      return 'trash'
+    } else {
+      return 'files'
+    }
+  }
 
   const {
     selectedItems,
@@ -151,7 +159,8 @@ function useFiles(folderId?: string) {
 
   return {
     state: {
-      folderId: _folderId,
+      folderId: folder?.id,
+      mode: getMode(),
       allItems,
       selectedItems,
       lastSelected,

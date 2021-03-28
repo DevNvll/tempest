@@ -28,9 +28,9 @@ import ContextMenus from '../ContextMenus'
 import { useDropzone } from 'react-dropzone'
 import clsx from 'clsx'
 
-export default function FilesDirectory() {
+export default function FilesDirectory({ root = undefined }) {
   const {
-    state: { folder, selectedItems, loaded, empty, folderId },
+    state: { folder, selectedItems, loaded, empty, folderId, mode },
     operations: {
       refetch,
       clearSelection,
@@ -40,7 +40,7 @@ export default function FilesDirectory() {
       deleteItem,
       renameItem
     }
-  } = useFiles()
+  } = useFiles(root)
   const router = useRouter()
   const preview = usePreview()
   const ui = useUI()
@@ -277,18 +277,33 @@ export default function FilesDirectory() {
                       </div>
                     ) : (
                       <div className="w-full min-h-full flex flex-col space-y-2 items-center justify-center">
-                        <h1 className="text-2xl font-bold">No Files Here</h1>
-                        <p className="text-sm font-thin">
-                          Upload your first file
-                        </p>
-                        <div>
-                          <UploadButton id="directory">
-                            <div className="px-4 py-2 font-bold bg-primary-300 text-primary-300 bg-opacity-10 rounded-xl text-center cursor-pointer flex flex-row items-center justify-center space-x-2">
-                              <HiPlus />
-                              <span>Upload File</span>
+                        {mode === 'files' ? (
+                          <>
+                            <h1 className="text-2xl font-bold">
+                              No Files Here
+                            </h1>
+                            <p className="text-sm font-thin">
+                              Upload your first file
+                            </p>
+                            <div>
+                              <UploadButton id="directory">
+                                <div className="px-4 py-2 font-bold bg-primary-300 text-primary-300 bg-opacity-10 rounded-xl text-center cursor-pointer flex flex-row items-center justify-center space-x-2">
+                                  <HiPlus />
+                                  <span>Upload File</span>
+                                </div>
+                              </UploadButton>
                             </div>
-                          </UploadButton>
-                        </div>
+                          </>
+                        ) : (
+                          <>
+                            <h1 className="text-2xl font-bold">
+                              No Files Here
+                            </h1>
+                            <p className="text-sm font-thin">
+                              This folder is empty
+                            </p>
+                          </>
+                        )}
                       </div>
                     )}
                   </>

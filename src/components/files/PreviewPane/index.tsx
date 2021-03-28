@@ -1,5 +1,6 @@
 import { usePreview } from '@store/preview'
 import { useRouter } from 'next/router'
+import { useEffect } from 'react'
 import {
   HiOutlineDocument,
   HiOutlineEyeOff,
@@ -10,9 +11,12 @@ import {
 export default function PreviewPane() {
   const preview = usePreview()
   const router = useRouter()
-  router.events.on('routeChangeStart', () => {
-    preview.clear()
-  })
+
+  useEffect(() => {
+    router.events?.on('routeChangeStart', () => {
+      preview.clear()
+    })
+  }, [])
 
   function renderIcon() {
     switch (preview.item?.mimeType) {
