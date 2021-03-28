@@ -1,31 +1,30 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { useRouter } from 'next/router'
-import { ContextMenu, ContextMenuTrigger } from 'react-contextmenu'
+import { ContextMenuTrigger } from 'react-contextmenu'
 import { useDraggable } from '@dnd-kit/core'
-import { MdDelete, MdEdit, MdViewAgenda } from 'react-icons/md'
+
 import cs from 'clsx'
 
-import MenuItem from '@components/UI/MenuItem'
 import { HiDocument } from 'react-icons/hi'
 import { useFiles } from '@store/files'
-import { hideMenu } from 'react-contextmenu/modules/actions'
 import { usePreview } from '@store/preview'
 import { useUI } from '@store/ui'
 
 const File = ({
   id,
-  name,
+  name: initialName,
   extension,
   type,
   size,
   onClick,
   selected = false
 }) => {
-  const contextMenuId = 'context-menu-file-' + id
   const router = useRouter()
   const files = useFiles()
   const preview = usePreview()
   const ui = useUI()
+
+  const [name, setName] = useState(initialName)
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id
@@ -49,7 +48,7 @@ const File = ({
               holdToDisplay={999999}
               attributes={{
                 className: cs(
-                  'w-40 p-4  group-hover:bg-gray-100 group-hover:bg-opacity-10 rounded-lg cursor-pointer flex flex-col items-center justify-center',
+                  'w-40 p-4 max-h-[400px] group-hover:bg-gray-100 group-hover:bg-opacity-10 rounded-lg cursor-pointer flex flex-col items-center justify-center',
                   {
                     'bg-gray-100 bg-opacity-10': selected
                   }
@@ -98,7 +97,22 @@ const File = ({
                 )}
               </div>
               <div className="text-center w-full mt-2 space-y-2">
-                <p className="font-bold break-words">{name}</p>
+                <div
+                  contentEditable
+                  className="font-bold text-sm break-words overflow-hidden bg-transparent cursor-pointer w-full"
+                  onBlur={async (e) => {
+                    if (name === initialName) return
+                    await files.operations.renameItem({
+                      id,
+                      type: 'file',
+                      newName: e.currentTarget.innerText
+                    })
+                  }}
+                  onInput={(e) => setName(e.currentTarget.innerText)}
+                >
+                  {initialName}
+                </div>
+
                 <p className="text-xs font-light">{size}</p>
               </div>
             </ContextMenuTrigger>

@@ -90,7 +90,12 @@ export async function renameItem({
   newName: string
 }) {
   if (type === 'file') {
-    const { data: folder } = await apiClient.patch('/dam/file/' + id, {
+    const { data: file } = await apiClient.patch('/dam/file/' + id, {
+      name: newName
+    })
+    return file
+  } else {
+    const { data: folder } = await apiClient.patch('/dam/folder/' + id, {
       name: newName
     })
     return folder

@@ -1,18 +1,21 @@
-import { useEffect, memo } from 'react'
+import { memo, useState } from 'react'
 import { useRouter } from 'next/router'
-import { ContextMenu, ContextMenuTrigger } from 'react-contextmenu'
+import { ContextMenuTrigger } from 'react-contextmenu'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
-import { MdDelete, MdEdit, MdFolder, MdViewAgenda } from 'react-icons/md'
+import { MdFolder } from 'react-icons/md'
 import cs from 'clsx'
 
-import MenuItem from '@components/UI/MenuItem'
-import { HiOutlineCheck } from 'react-icons/hi'
 import { useFiles } from '@store/files'
 import { usePreview } from '@store/preview'
 import { useUI } from '@store/ui'
 
-const Folder = ({ id, name, numberOfItems = 0, onClick, selected = false }) => {
-  const contextMenuId = 'context-menu-folder-' + id
+const Folder = ({
+  id,
+  name: initialName,
+  numberOfItems = 0,
+  onClick,
+  selected = false
+}) => {
   const router = useRouter()
   const { state, operations } = useFiles()
   const preview = usePreview()
@@ -27,6 +30,8 @@ const Folder = ({ id, name, numberOfItems = 0, onClick, selected = false }) => {
   } = useDraggable({
     id
   })
+
+  const [name, setName] = useState(initialName)
 
   const { setNodeRef: setDroppableNodeRef, isOver, over } = useDroppable({
     id,
@@ -83,7 +88,21 @@ const Folder = ({ id, name, numberOfItems = 0, onClick, selected = false }) => {
                 <MdFolder className="text-primary-500 text-8xl" />
               </div>
               <div className="text-center w-full mt-2  space-y-2">
-                <p className="font-bold break-words">{name}</p>
+                <div
+                  contentEditable
+                  className="font-bold text-sm break-words overflow-hidden bg-transparent cursor-pointer w-full"
+                  onBlur={async (e) => {
+                    if (name === initialName) return
+                    await operations.renameItem({
+                      id,
+                      type: 'folder',
+                      newName: e.currentTarget.innerText
+                    })
+                  }}
+                  onInput={(e) => setName(e.currentTarget.innerText)}
+                >
+                  {initialName}
+                </div>
                 <p className="text-xs font-light">
                   {numberOfItems > 0 ? numberOfItems + ' items' : 'Empty'}{' '}
                 </p>

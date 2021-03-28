@@ -6,7 +6,7 @@ import { useFiles } from '@store/files'
 import { useUpload } from '@store/upload'
 
 import { useRouter } from 'next/router'
-import { MouseEvent } from 'react'
+import { MouseEvent, useCallback } from 'react'
 import { ContextMenu, ContextMenuTrigger, hideMenu } from 'react-contextmenu'
 import { HiChevronLeft, HiPlus } from 'react-icons/hi'
 import {
@@ -25,6 +25,8 @@ import PreviewPane from '../PreviewPane'
 import { usePreview } from '@store/preview'
 import { useUI } from '@store/ui'
 import ContextMenus from '../ContextMenus'
+import { useDropzone } from 'react-dropzone'
+import clsx from 'clsx'
 
 export default function FilesDirectory() {
   const {
@@ -42,6 +44,19 @@ export default function FilesDirectory() {
   const router = useRouter()
   const preview = usePreview()
   const ui = useUI()
+  const upload = useUpload()
+
+  const onDrop = useCallback((acceptedFiles) => {
+    acceptedFiles.forEach((i) => {
+      upload.addItem(i, folderId, () => {
+        setTimeout(refetch, 1000)
+      })
+    })
+  }, [])
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop
+  })
 
   useUpload.subscribe((prev, next) => {
     if (next.progress === 100) {
@@ -139,7 +154,9 @@ export default function FilesDirectory() {
       <div className="flex flex-col py-4 w-[260px] h-full bg-gray-800">
         <Sidebar />
       </div>
-      <div className="flex flex-col w-full flex-grow h-full">
+
+      <div className="flex flex-col w-full flex-grow h-full  relative">
+        <input {...getInputProps} className="hidden" />
         <div className="flex flex-col w-full">
           <div className="h-16 w-full flex items-center px-4">
             <div className="flex flex-row space-x-2">
@@ -159,7 +176,7 @@ export default function FilesDirectory() {
           </div>
           <UploadProgress />
         </div>
-        <div className="flex flex-row h-full">
+        <div className="flex flex-row h-full" {...getRootProps()}>
           <div className="w-full h-full">
             <DndContext
               sensors={sensors}
@@ -212,7 +229,12 @@ export default function FilesDirectory() {
                     }
                   },
                   id: 'background',
-                  className: 'h-full p-4'
+                  className: clsx(
+                    'h-full p-4 transition duration-500 easi-in-out',
+                    {
+                      'transform scale-[.98]': isDragActive
+                    }
+                  )
                 }}
               >
                 {loaded ? (
