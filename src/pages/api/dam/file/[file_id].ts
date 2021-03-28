@@ -24,10 +24,16 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
     const fileInfo = await getFileInfo(file.storageKey)
 
+    const signedUrl = await s3.getSignedUrl('getObject', {
+      Bucket: BUCKET,
+      Key: S3_FILES_PREFIX + file.storageKey
+    })
+
     res.send({
       ...file,
       readableSize: humanFileSize(fileInfo.ContentLength),
-      size: fileInfo.ContentLength
+      size: fileInfo.ContentLength,
+      signedUrl
     })
   })
   .delete(async (req, res) => {
