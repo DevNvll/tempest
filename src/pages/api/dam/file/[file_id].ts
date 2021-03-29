@@ -1,6 +1,3 @@
-import nc from 'next-connect'
-import { NextApiRequest, NextApiResponse } from 'next'
-
 import db from 'db'
 import s3 from '@services/server/s3'
 
@@ -9,8 +6,13 @@ import humanFileSize from '@lib/human-file-size'
 import { BUCKET, S3_FILES_PREFIX, S3_THUMBNAILS_PREFIX } from '@constants/app'
 import cleanObject from '@lib/cleanObject'
 import pick from 'lodash/pick'
+import { authenticated } from '@lib/auth/authenticatedMiddleware'
+import nc from 'next-connect'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { EnhancedRequestWithAuth } from '@typings/api'
 
-const handler = nc<NextApiRequest, NextApiResponse>()
+const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
+  .use(authenticated)
   .get(async (req, res) => {
     const fileId = req.query.file_id as string
     const file = await db.file.findUnique({
@@ -40,7 +42,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
   .delete(async (req, res) => {
     const fileId = req.query.file_id as string
 
-    const userId = '123'
+    const userId = req.user.id
 
     await deleteFile(fileId, userId)
 
@@ -51,7 +53,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
     const fileId = req.query.file_id as string
 
-    const userId = '123'
+    const userId = req.user.id
 
     const file = await db.file.findFirst({
       where: {

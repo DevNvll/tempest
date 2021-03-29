@@ -1,17 +1,27 @@
 import { getFile, getFolder } from '@services/client/dam'
+import { ItemType } from '@typings/files'
 
 import { useQuery } from 'react-query'
-import create from 'zustand'
+import create, { State } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from './middlewares'
 
-const _usePreview = create(
+interface PreviewStore extends State {
+  enabled: boolean
+  selectedId: string
+  selectedType: string
+  setPreview: (type: ItemType, id: string) => void
+  clear: () => void
+  toggle: () => void
+}
+
+const _usePreview = create<PreviewStore>(
   devtools(
     immer((set, get) => ({
       enabled: true,
       selectedId: null,
       selectedType: null,
-      setPreview: (type: 'folder' | 'file', id: string) => {
+      setPreview: (type: ItemType, id: string) => {
         set((state) => {
           state.selectedId = id
           state.selectedType = type

@@ -1,26 +1,25 @@
 import { deleteFolder, getFolderContent } from '@services/server/files'
 import cleanObject from '@lib/cleanObject'
-import { NextApiRequest, NextApiResponse } from 'next'
-import nc from 'next-connect'
 import db from 'db'
 import pick from 'lodash/pick'
+import { authenticated } from '@lib/auth/authenticatedMiddleware'
+import nc from 'next-connect'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { EnhancedRequestWithAuth } from '@typings/api'
 
-const handler = nc<NextApiRequest, NextApiResponse>()
+const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
+  .use(authenticated)
   .get(async (req, res) => {
     const folderId = req.query.folder_id as string
 
-    const userId = '123'
-
-    const content = await getFolderContent(userId, folderId)
+    const content = await getFolderContent(req.user.id, folderId)
 
     res.send(content)
   })
   .patch(async (req, res) => {
     const { name } = req.body
-
+    const userId = req.user.id
     const folderId = req.query.folder_id as string
-
-    const userId = '123'
 
     const folder = await db.folder.findFirst({
       where: {
@@ -57,7 +56,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
   })
   .delete(async (req, res) => {
     const folderId = req.query.folder_id as string
-    const userId = '123'
+    const userId = req.user.id
     const content = await deleteFolder(folderId, userId)
 
     res.send(content)

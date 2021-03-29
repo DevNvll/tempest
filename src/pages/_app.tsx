@@ -9,6 +9,8 @@ import { DefaultSeo } from 'next-seo'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ModalHandler } from '@components/Modal/Handler'
 
+import '../config/amplify'
+
 const Noop: FC = ({ children }) => <>{children}</>
 
 const queryClient = new QueryClient()

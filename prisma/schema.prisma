@@ -10,8 +10,7 @@ generator client {
 model User {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  username  String   @unique
-  password  String
+  name      String
   email     String   @unique
   Folder    Folder[]
   File      File[]

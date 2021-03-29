@@ -9,6 +9,9 @@ import {
 import cs from 'classnames'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import useAuth from '@store/useAuth'
+import { CircleLoader, ClipLoader, RotateLoader } from 'react-spinners'
+import colors from '@constants/colors'
 
 function SidebarItem({ Icon, label, color = 'primary', href = '/' }) {
   const router = useRouter()
@@ -40,7 +43,11 @@ function SidebarItem({ Icon, label, color = 'primary', href = '/' }) {
 }
 
 export default function MainLayout({ children }) {
-  return (
+  const {
+    state: { loading }
+  } = useAuth()
+
+  return !loading ? (
     <>
       <NextSeo
         title="Exsign Studio"
@@ -76,8 +83,12 @@ export default function MainLayout({ children }) {
             </li>
           </div>
         </nav>
-        <div className="bg-gray-700 flex-grow pl-[72px]">{children}</div>
+        <div className="bg-gray-900 flex-grow pl-[72px]">{children}</div>
       </div>
     </>
+  ) : (
+    <div className="min-h-screen w-full bg-gray-600 flex flex-col items-center justify-center">
+      <ClipLoader color={colors.primary[500]} />
+    </div>
   )
 }

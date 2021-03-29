@@ -1,14 +1,18 @@
-import create from 'zustand'
+import create, { State } from 'zustand'
 import { immer } from './middlewares'
 import { uploadFile } from '@services/client/dam'
 
-async function upload(file: File, parentId: string, onProgress) {
-  await uploadFile(file, parentId, onProgress)
-  return file
+interface UploadStore extends State {
+  queue: any[]
+  pendingPromise: boolean
+  progress: number
+  uploading: boolean
+  items: number
+  addItem: (file: File, parentId: string, onReady: () => void) => void
+  next: () => void
 }
 
-// @ts-ignore
-const useUpload = create(
+const useUpload = create<UploadStore>(
   immer((set, get) => ({
     queue: [],
     pendingPromise: false,
@@ -41,7 +45,7 @@ const useUpload = create(
 
         state.pendingPromise = true
         state.currentUpload = item
-        upload(item.file, item.parentId, (event) => {
+        uploadFile(item.file, item.parentId, (event) => {
           set((state) => {
             state.progress = (event.loaded * 100) / event.total
           })

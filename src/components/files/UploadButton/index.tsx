@@ -1,5 +1,6 @@
 import { useFiles } from '@store/files'
 import { useUpload } from '@store/upload'
+import { useEffect } from 'react'
 import { HiPlus } from 'react-icons/hi'
 
 export default function UploadButton({ children, id = 'upload-button' }) {

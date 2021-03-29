@@ -1,18 +1,16 @@
 import { ModalTypes } from '@constants/modal'
-import create from 'zustand'
+import create, { State } from 'zustand'
 import { immer } from './middlewares'
 
-import { ModalType } from '@typings/ui'
-import { OpenModalParams } from '@typings/modal'
+import { OpenModalParams, ModalType } from '@typings/modal'
 
-interface State {
-  currentModals: Array<{ type: ModalType; props: any }>
+interface UIStore extends State {
+  currentModals: Array<{ type: ModalTypes; props: any }>
   openModal: (params: OpenModalParams) => void
   closeModal: (modalType: ModalType) => void
 }
 
-// @ts-ignore
-const useUI = create<State>(
+const useUI = create<UIStore>(
   immer((set) => ({
     currentModals: [],
     openModal: ({ modalType, props }) =>
@@ -24,7 +22,7 @@ const useUI = create<State>(
       set(
         (state) =>
           void (state.currentModals = state.currentModals.filter(
-            (modal) => modal.type !== modalType
+            (modal) => modal.type === ModalTypes[modalType]
           ))
       )
   }))

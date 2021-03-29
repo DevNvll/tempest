@@ -19,31 +19,9 @@ export async function getFolderContent(
 ) {
   let folder
   if (folderId === 'root') {
-    folder = await db.folder.findFirst({
-      where: {
-        AND: {
-          name: 'My Files',
-          isRoot: true,
-          userId
-        }
-      },
-      include: {
-        parent: true
-      }
-    })
+    folder = await getRootFolder('root', userId)
   } else if (folderId === 'trash') {
-    folder = await db.folder.findFirst({
-      where: {
-        AND: {
-          name: 'Trash',
-          isRoot: true,
-          userId
-        }
-      },
-      include: {
-        parent: true
-      }
-    })
+    folder = await getRootFolder('trash', userId)
   } else {
     folder = await db.folder.findUnique({
       where: {

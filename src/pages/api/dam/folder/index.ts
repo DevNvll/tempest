@@ -1,20 +1,22 @@
 import db from 'db'
-import { NextApiRequest, NextApiResponse } from 'next'
-
-import nc from 'next-connect'
 import { getFolderContent } from '@services/server/files'
+import { authenticated } from '@lib/auth/authenticatedMiddleware'
+import nc from 'next-connect'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { EnhancedRequestWithAuth } from '@typings/api'
 
-const handler = nc()
-  .get(async (req: NextApiRequest, res: NextApiResponse) => {
-    const userId = '123'
+const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
+  .use(authenticated)
+  .get(async (req, res) => {
+    const userId = req.user.id
 
     const content = await getFolderContent(userId)
 
     res.send(content)
   })
-  .post(async (req: NextApiRequest, res: NextApiResponse) => {
+  .post(async (req, res) => {
     const { parentId, name } = req.body
-    const userId = '123'
+    const userId = req.user.id
 
     try {
       const folder = await db.folder.create({

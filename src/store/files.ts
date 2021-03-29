@@ -1,23 +1,21 @@
 import * as services from '@services/client/dam'
-import { ModalTypes } from 'constants/modal'
 import { useMutation, useQuery } from 'react-query'
 import { ItemType } from 'typings/files'
-import { ModalType } from 'typings/ui'
-import create from 'zustand'
+import create, { State } from 'zustand'
 import { immer } from './middlewares'
 import { devtools } from 'zustand/middleware'
 import { useMemo } from 'react'
 import { useRouter } from 'next/router'
 
-type State = {
+interface FilesStore extends State {
   selectedItems: string[]
   lastSelected: number
-  setSelectedItems: (items) => void
-  setLastSelected: (id) => void
+  setSelectedItems: (items: string[]) => void
+  setLastSelected: (index: number) => void
   clearSelection: () => void
 }
 
-const _useFiles = create<State>(
+const _useFiles = create<FilesStore>(
   devtools(
     immer((set) => ({
       selectedItems: [],
@@ -26,9 +24,9 @@ const _useFiles = create<State>(
         set((state) => {
           state.selectedItems = items
         }),
-      setLastSelected: (id) =>
+      setLastSelected: (index: number) =>
         set((state) => {
-          state.lastSelected = id
+          state.lastSelected = index
         }),
       clearSelection: () =>
         set((state) => {
@@ -42,15 +40,18 @@ const _useFiles = create<State>(
 function useFiles(folderId?: string) {
   const router = useRouter()
 
-  const _folderId = folderId || (router.query.folder_id as string)
+  const _folderId = folderId || (router.query.folder_id as string) || 'root'
 
-  const {
-    data: folder,
-    isSuccess,
-    isLoading,
-    refetch
-  } = useQuery(
-    '/dam/folders/' + (_folderId || ''),
+  function getMode() {
+    if (router.pathname.startsWith('/files/trash')) {
+      return 'trash'
+    } else {
+      return 'files'
+    }
+  }
+
+  const { data: folder, isSuccess, isLoading, refetch } = useQuery(
+    ['/dam/folders/', _folderId],
     () =>
       _folderId ? services.getFolder(_folderId) : services.getRootFolder(),
     { enabled: _folderId !== undefined || !!_folderId }
@@ -61,14 +62,6 @@ function useFiles(folderId?: string) {
     () => folder && !folder.files.length && !folder.folders.length,
     [folder]
   )
-
-  function getMode() {
-    if (router.pathname.startsWith('/files/trash')) {
-      return 'trash'
-    } else {
-      return 'files'
-    }
-  }
 
   const {
     selectedItems,
