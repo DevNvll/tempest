@@ -33,10 +33,12 @@ export default async function handler(
 
       const thumb = s3.getSignedUrl('getObject', {
         Bucket: BUCKET,
-        Key: S3_THUMBNAILS_PREFIX + file.storageKey
+        Key: S3_THUMBNAILS_PREFIX + file.storageKey,
+        Expires: 604800
       })
 
       res.setHeader('location', thumb)
+      res.setHeader('Cache-Control', 's-maxage=302400, stale-while-revalidate')
       res.status(302).send('')
       return
     } catch (err) {
