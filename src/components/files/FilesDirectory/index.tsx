@@ -158,7 +158,11 @@ export default function FilesDirectory() {
       className="h-full w-full flex flex-row bg-gray-900"
       onClick={function (e: React.MouseEvent<HTMLDivElement>) {
         const target = e.target as HTMLDivElement
-        if (target.matches('.directory-item *')) return
+        if (
+          target.matches('.directory-item *') ||
+          target.matches('.preview-pane *')
+        )
+          return
         clearSelection()
         preview.clear()
       }}

@@ -44,6 +44,7 @@ const _usePreview = create<PreviewStore>(
 
 function usePreview() {
   const preview = _usePreview()
+
   const {
     data: item,
     isSuccess,

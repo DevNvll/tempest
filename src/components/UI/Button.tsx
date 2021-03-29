@@ -23,7 +23,7 @@ export default function Button({
 
   const variants = {
     primary:
-      'bg-gradient-from-l bg-gradient-to-r from-primary-700 to-primary-600',
+      'bg-gradient-from-l bg-gradient-to-r from-primary-700 to-primary-600 text-white',
     link: 'bg-transparent'
   }
 
@@ -37,6 +37,7 @@ export default function Button({
           'opacity-50 cursor-default': isLoading
         }
       )}
+      disabled={isLoading}
       style={
         width && height
           ? {
