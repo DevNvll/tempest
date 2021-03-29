@@ -84,6 +84,7 @@ export default function FilesDirectory({ root = undefined }) {
         }
         case 'DELETE': {
           await deleteItem({ id, type: 'file' })
+          ui.toast('File deleted successfully')
           refetch()
           return
         }
@@ -110,6 +111,7 @@ export default function FilesDirectory({ root = undefined }) {
         }
         case 'DELETE': {
           await deleteItem({ id, type: 'folder' })
+          ui.toast('Folder deleted successfully')
           refetch()
           return
         }

@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { ModalHandler } from '@components/Modal/Handler'
 
 import '../config/amplify'
+import { ToastProvider } from '@components/UI/Toast/ToastHandler'
 
 const Noop: FC = ({ children }) => <>{children}</>
 
@@ -27,10 +28,12 @@ function MyApp({ Component, pageProps, router }: AppProps) {
       />
       <GoogleFonts href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&display=swap" />
       <QueryClientProvider client={queryClient}>
-        <ModalHandler />
-        <Layout pageProps={pageProps}>
-          <Component {...pageProps} />
-        </Layout>
+        <ToastProvider>
+          <ModalHandler />
+          <Layout pageProps={pageProps}>
+            <Component {...pageProps} />
+          </Layout>
+        </ToastProvider>
       </QueryClientProvider>
     </>
   )
