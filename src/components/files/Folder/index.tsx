@@ -45,73 +45,71 @@ const Folder = ({
   async function handleClick(e, data) {}
 
   return (
-    <>
+    <div
+      className="select-none"
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+    >
       <div
-        className="select-none"
-        ref={setNodeRef}
-        {...attributes}
-        {...listeners}
+        className={cs('rounded border-2 border-dashed directory-item', {
+          'border-primary-500': isOver,
+          ' border-transparent': !isOver
+        })}
+        ref={setDroppableNodeRef}
       >
-        <div
-          className={cs('rounded border-2 border-dashed directory-item', {
-            'border-primary-500': isOver,
-            ' border-transparent': !isOver
-          })}
-          ref={setDroppableNodeRef}
-        >
-          <div>
-            <ContextMenuTrigger
-              id="folder-context-menu"
-              collect={() => {
-                return { id, type: 'folder' }
-              }}
-              holdToDisplay={999999}
-              attributes={{
-                className: cs(
-                  ' p-4 w-40 hover:bg-gray-100 hover:bg-opacity-10 rounded-lg cursor-pointer flex flex-col items-center justify-center',
-                  {
-                    'bg-gray-100 bg-opacity-10': selected
-                  }
-                ),
-                onDoubleClick: () => {
-                  router.push('/files/folder/' + id)
-                },
-                onClick: (e) => {
-                  if (!isDragging) {
-                    preview.setPreview('folder', id)
-                    onClick(id, e.shiftKey)
-                  }
+        <div>
+          <ContextMenuTrigger
+            id="folder-context-menu"
+            collect={() => {
+              return { id, type: 'folder' }
+            }}
+            holdToDisplay={999999}
+            attributes={{
+              className: cs(
+                ' p-4 w-40 hover:bg-gray-100 hover:bg-opacity-10 rounded-lg cursor-pointer flex flex-col items-center justify-center',
+                {
+                  'bg-gray-100 bg-opacity-10': selected
                 }
-              }}
-            >
-              <div className=" w-28 h-28 flex items-center justify-center py-4">
-                <MdFolder className="text-primary-500 text-8xl" />
-              </div>
-              <div className="text-center w-full mt-2  space-y-2">
-                <div
-                  contentEditable={state.mode === 'files'}
-                  className="font-bold text-sm break-words overflow-hidden bg-transparent cursor-pointer w-full"
-                  onBlur={async (e) => {
-                    if (name === initialName) return
-                    await operations.renameItem({
-                      id,
-                      type: 'folder',
-                      newName: e.currentTarget.innerText
-                    })
-                  }}
-                  onInput={(e) => setName(e.currentTarget.innerText)}
-                >
-                  {initialName}
-                </div>
-                <p className="text-xs font-light">
-                  {numberOfItems > 0 ? numberOfItems + ' items' : 'Empty'}{' '}
-                </p>
-              </div>
-            </ContextMenuTrigger>
-          </div>
+              ),
+              onDoubleClick: () => {
+                router.push('/files/folder/' + id)
+              },
+              onClick: (e) => {
+                if (!isDragging) {
+                  preview.setPreview('folder', id)
+                  onClick(id, e.shiftKey)
+                }
+              }
+            }}
+          >
+            <div className=" w-28 h-28 flex items-center justify-center py-4">
+              <MdFolder className="text-primary-500 text-8xl" />
+            </div>
+            <div className="text-center w-full mt-2  space-y-2">
+              <p
+                // contentEditable={state.mode === 'files'}
+                className="font-bold text-sm break-words overflow-hidden bg-transparent cursor-pointer w-full"
+                // onBlur={async (e) => {
+                //   if (name === initialName) return
+                //   await operations.renameItem({
+                //     id,
+                //     type: 'folder',
+                //     newName: e.currentTarget.innerText
+                //   })
+                // }}
+                // onInput={(e) => setName(e.currentTarget.innerText)}
+              >
+                {initialName}
+              </p>
+              <p className="text-xs font-light">
+                {numberOfItems > 0 ? numberOfItems + ' items' : 'Empty'}
+              </p>
+            </div>
+          </ContextMenuTrigger>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

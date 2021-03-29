@@ -40,7 +40,7 @@ const _useFiles = create<FilesStore>(
 function useFiles(folderId?: string) {
   const router = useRouter()
 
-  const _folderId = folderId || (router.query.folder_id as string) || 'root'
+  const _folderId = router.query.folder_id as string
 
   function getMode() {
     if (router.pathname.startsWith('/files/trash')) {
@@ -51,10 +51,10 @@ function useFiles(folderId?: string) {
   }
 
   const { data: folder, isSuccess, isLoading, refetch } = useQuery(
-    ['/dam/folders/', _folderId],
+    ['/dam/folders/', _folderId ? _folderId : getMode()],
     () =>
       _folderId ? services.getFolder(_folderId) : services.getRootFolder(),
-    { enabled: _folderId !== undefined || !!_folderId }
+    { enabled: !!_folderId || router.pathname.startsWith('/files') }
   )
 
   const loaded = useMemo(() => isSuccess && !isLoading, [isSuccess, isLoading])
@@ -74,19 +74,19 @@ function useFiles(folderId?: string) {
 
   const allItems = useMemo(
     () =>
-      loaded
+      folder
         ? [
-            ...folder.files.map((f) => {
+            ...folder?.files.map((f) => {
               f.type = 'file'
               return f
             }),
-            ...folder.folders.map((f) => {
+            ...folder?.folders.map((f) => {
               f.type = 'folder'
               return f
             })
           ]
         : [],
-    [loaded, folder]
+    [folder]
   )
 
   function handleSelect(id: string, withShift?: boolean) {
@@ -152,13 +152,14 @@ function useFiles(folderId?: string) {
 
   return {
     state: {
-      folderId: folder?.id,
+      folderId: folder?.id || _folderId,
       mode: getMode(),
       allItems,
       selectedItems,
       lastSelected,
       folder,
-      loaded,
+      loaded: !isLoading,
+      notFound: !isLoading && !isSuccess,
       empty
     },
     operations: {

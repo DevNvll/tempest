@@ -4,7 +4,7 @@ import MainLayout from '@components/Layouts/Main'
 import FilesDirectory from '@components/files/FilesDirectory'
 
 export default function Index() {
-  return <FilesDirectory root="root" />
+  return <FilesDirectory />
 }
 
 Index.Layout = MainLayout

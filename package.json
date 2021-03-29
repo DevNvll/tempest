@@ -33,6 +33,7 @@
     "next-google-fonts": "^2.1.0",
     "next-images": "^1.4.1",
     "next-seo": "^4.7.3",
+    "pg": "^8.5.1",
     "postcss-import": "^12.0.1",
     "prisma": "2.19.0",
     "react": "^17.0.1",

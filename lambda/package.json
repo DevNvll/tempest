@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "cuid": "^2.1.8",
+    "pg": "^8.5.1"
+  },
+  "devDependencies": {
+    "serverless": "latest"
+  }
+}

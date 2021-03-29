@@ -4,7 +4,7 @@ import MainLayout from '@components/Layouts/Main'
 import FilesDirectory from '@components/files/FilesDirectory'
 
 export default function Trash() {
-  return <FilesDirectory root="trash" />
+  return <FilesDirectory />
 }
 
 Trash.Layout = MainLayout

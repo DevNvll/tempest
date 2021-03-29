@@ -97,21 +97,21 @@ const File = ({
                 )}
               </div>
               <div className="text-center w-full mt-2 space-y-2">
-                <div
-                  contentEditable={files.state.mode === 'files'}
+                <p
+                  // contentEditable={files.state.mode === 'files'}
                   className="font-bold text-sm break-words overflow-hidden bg-transparent cursor-pointer w-full"
-                  onBlur={async (e) => {
-                    if (name === initialName) return
-                    await files.operations.renameItem({
-                      id,
-                      type: 'file',
-                      newName: e.currentTarget.innerText
-                    })
-                  }}
-                  onInput={(e) => setName(e.currentTarget.innerText)}
+                  // onBlur={async (e) => {
+                  //   if (name === initialName) return
+                  //   await files.operations.renameItem({
+                  //     id,
+                  //     type: 'file',
+                  //     newName: e.currentTarget.innerText
+                  //   })
+                  // }}
+                  // onInput={(e) => setName(e.currentTarget.innerText)}
                 >
                   {initialName}
-                </div>
+                </p>
 
                 <p className="text-xs font-light">{size}</p>
               </div>

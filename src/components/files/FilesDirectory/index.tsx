@@ -6,7 +6,7 @@ import { useFiles } from '@store/files'
 import { useUpload } from '@store/upload'
 
 import { useRouter } from 'next/router'
-import { MouseEvent, useCallback } from 'react'
+import { MouseEvent, useCallback, useMemo, useRef } from 'react'
 import { ContextMenu, ContextMenuTrigger, hideMenu } from 'react-contextmenu'
 import { HiChevronLeft, HiPlus } from 'react-icons/hi'
 import {
@@ -27,10 +27,15 @@ import { useUI } from '@store/ui'
 import ContextMenus from '../ContextMenus'
 import { useDropzone } from 'react-dropzone'
 import clsx from 'clsx'
+import { moveItems } from '@services/client/dam'
+import { useMouse } from 'react-use'
 
-export default function FilesDirectory({ root = undefined }) {
+export default function FilesDirectory() {
+  const mouseRef = useRef(null)
+  const mouse = useMouse(mouseRef)
+  const mousePos = useMemo(() => ({ x: mouse.docX, y: mouse.docY }), [mouse])
   const {
-    state: { folder, selectedItems, loaded, empty, folderId, mode },
+    state: { folder, selectedItems, loaded, empty, folderId, mode, notFound },
     operations: {
       refetch,
       clearSelection,
@@ -40,19 +45,22 @@ export default function FilesDirectory({ root = undefined }) {
       deleteItem,
       renameItem
     }
-  } = useFiles(root)
+  } = useFiles()
   const router = useRouter()
   const preview = usePreview()
   const ui = useUI()
   const upload = useUpload()
 
-  const onDrop = useCallback((acceptedFiles) => {
-    acceptedFiles.forEach((i) => {
-      upload.addItem(i, folderId, () => {
-        setTimeout(refetch, 1000)
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      acceptedFiles.forEach((i) => {
+        upload.addItem(i, folderId, () => {
+          setTimeout(refetch, 1000)
+        })
       })
-    })
-  }, [])
+    },
+    [folderId]
+  )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop
@@ -135,8 +143,10 @@ export default function FilesDirectory({ root = undefined }) {
         modalType: 'CreateFolder',
         props: {
           parentId: folderId,
-          onCreate: ({ parentId, name }) => {
-            createFolder(parentId, name)
+          onCreate: async ({ parentId, name }) => {
+            await createFolder(parentId, name)
+            ui.toast('Folder created successfully')
+            refetch()
           }
         }
       })
@@ -152,6 +162,7 @@ export default function FilesDirectory({ root = undefined }) {
         clearSelection()
         preview.clear()
       }}
+      ref={mouseRef}
     >
       <div className="flex flex-col py-4 w-[260px] h-full bg-gray-800">
         <Sidebar />
@@ -182,7 +193,34 @@ export default function FilesDirectory({ root = undefined }) {
           <div className="w-full h-full">
             <DndContext
               sensors={sensors}
-              onDragEnd={(e) => {
+              collisionDetection={(entries, target) => {
+                const getIntersectionRatio = (entry) => {
+                  const { x: clientX, y: clientY } = mousePos
+                  const isWithinX =
+                    clientX > entry.offsetLeft &&
+                    clientX < entry.offsetLeft + entry.width
+                  const isWithinY =
+                    clientY > entry.offsetTop &&
+                    clientY < entry.offsetTop + entry.height
+
+                  if (isWithinX && isWithinY) {
+                    // Should compute a score to gauge how close to the center instead of a boolean
+                    return true
+                  }
+                  return false
+                }
+                const intersections = entries.map(([_, entry]) =>
+                  getIntersectionRatio(entry)
+                )
+
+                // Once intersections returns a score, use that to determine the best match
+                const firstIndex = intersections.findIndex(Boolean)
+                if (firstIndex !== -1) {
+                  return entries[firstIndex][0]
+                }
+                return null
+              }}
+              onDragEnd={async (e) => {
                 const targetFolderId = e.over?.id
                 const itemId = e.active?.id
 
@@ -196,51 +234,61 @@ export default function FilesDirectory({ root = undefined }) {
                     const payload = {
                       folders: selectedItems
                         .map((i) => findById(i))
-                        .filter((i) => i.type === 'folder'),
+                        .filter((i) => i.type === 'folder')
+                        .map((i) => i.id),
                       files: selectedItems
                         .map((i) => findById(i))
                         .filter((i) => i.type === 'file')
+                        .map((i) => i.id)
                     }
-                    console.log('move', payload, 'to', targetFolderId)
+                    await moveItems(targetFolderId, payload)
+                    ui.toast('Items moved successfully')
+                    refetch()
                   } else {
                     // single
                     const { type } = findById(itemId)
-                    console.log('move', type, itemId, 'to', targetFolderId)
+                    const payload = {
+                      [type === 'folder' ? 'folders' : 'files']: [itemId]
+                    }
+
+                    await moveItems(targetFolderId, payload)
+                    ui.toast('Items moved successfully')
+                    refetch()
                   }
                 }
               }}
             >
-              <FileDragOverlay />
-              <ContextMenuTrigger
-                id="bg"
-                holdToDisplay={99999999}
-                collect={() => ({
-                  folderId,
-                  type: 'background'
-                })}
-                attributes={{
-                  onClick: (e) => {
-                    hideMenu()
-                  },
-                  onMouseDown: (e: MouseEvent<HTMLDivElement>) => {
-                    if (
-                      (e.target as HTMLDivElement).id === 'background' ||
-                      (e.target as HTMLDivElement).id === 'background-grid'
-                    ) {
-                      clearSelection()
-                    }
-                  },
-                  id: 'background',
-                  className: clsx(
-                    'h-full p-4 transition duration-500 easi-in-out',
-                    {
-                      'transform scale-[.98]': isDragActive
-                    }
-                  )
-                }}
-              >
-                {loaded ? (
-                  <>
+              {loaded && !notFound ? (
+                <>
+                  <FileDragOverlay />
+                  <ContextMenuTrigger
+                    id="bg"
+                    holdToDisplay={99999999}
+                    collect={() => ({
+                      folderId,
+                      type: 'background'
+                    })}
+                    attributes={{
+                      onClick: (e) => {
+                        hideMenu()
+                      },
+                      onMouseDown: (e: MouseEvent<HTMLDivElement>) => {
+                        if (
+                          (e.target as HTMLDivElement).id === 'background' ||
+                          (e.target as HTMLDivElement).id === 'background-grid'
+                        ) {
+                          clearSelection()
+                        }
+                      },
+                      id: 'background',
+                      className: clsx(
+                        'h-full p-4 transition duration-500 easi-in-out',
+                        {
+                          'transform scale-[.98]': isDragActive
+                        }
+                      )
+                    }}
+                  >
                     {!empty ? (
                       <div
                         className="grid gap-4 grid-cols-fill-40"
@@ -308,13 +356,17 @@ export default function FilesDirectory({ root = undefined }) {
                         )}
                       </div>
                     )}
-                  </>
-                ) : (
-                  <div className="w-full min-h-full flex items-center justify-center">
-                    <BarLoader color="#4C1CAF" />
-                  </div>
-                )}
-              </ContextMenuTrigger>
+                  </ContextMenuTrigger>
+                </>
+              ) : !notFound ? (
+                <div className="w-full min-h-full flex items-center justify-center">
+                  <BarLoader color="#4C1CAF" />
+                </div>
+              ) : (
+                <div className="w-full min-h-full flex items-center justify-center">
+                  <h1>Folder not found</h1>
+                </div>
+              )}
             </DndContext>
           </div>
           <ContextMenus handleContextClick={handleContextClick} />

@@ -15,6 +15,10 @@ import {
 } from 'react-icons/hi'
 import UploadButton from '../UploadButton'
 
+const Wrapper = ({ children, href }) => {
+  return href ? <Link href={href}>{children}</Link> : <>{children}</>
+}
+
 function MenuItem({ label, href = '', variant = 'default', Icon }) {
   const router = useRouter()
 
@@ -38,19 +42,9 @@ function MenuItem({ label, href = '', variant = 'default', Icon }) {
     }
   }
 
-  const Wrapper = ({ children }) => {
-    return href ? (
-      <Link href={href}>
-        <a>{children}</a>
-      </Link>
-    ) : (
-      <>{children}</>
-    )
-  }
-
   return (
-    <Wrapper>
-      <li
+    <Wrapper href={href}>
+      <a
         className={clsx(
           'flex flex-row space-x-2 px-6 py-3 items-center text-sm font-semibold cursor-pointer transition-all ease-in-out duration-150',
           {
@@ -61,7 +55,7 @@ function MenuItem({ label, href = '', variant = 'default', Icon }) {
       >
         <Icon />
         <span>{label}</span>
-      </li>
+      </a>
     </Wrapper>
   )
 }

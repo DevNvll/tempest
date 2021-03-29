@@ -16,7 +16,7 @@ export default function FileDragOverlay() {
     ? {
         top: mousePos.y + 'px',
         left: mousePos.x + 'px',
-        position: 'absolute'
+        position: 'fixed'
       }
     : {}
 
@@ -26,11 +26,11 @@ export default function FileDragOverlay() {
   )
 
   return (
-    <div ref={mouseRef} className="pointer-events-none">
+    <div ref={mouseRef} className="pointer-events-none z-[999999]">
       {dndContext.active && (
         <div
           style={style as React.CSSProperties}
-          className="px-4 py-2 bg-gray-900 rounded shadow-lg flex flex-row space-x-2 min-w-42 "
+          className="px-4 py-2 bg-gray-800 rounded shadow-lg flex flex-row space-x-2 min-w-42"
         >
           <div className="flex flex-row space-x-2 items-center justify-center">
             <span>

@@ -2,7 +2,7 @@ import db from 'db'
 import { S3_FILES_PREFIX } from '@constants/app'
 import { authenticated } from '@lib/auth/authenticatedMiddleware'
 import nc from 'next-connect'
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiResponse } from 'next'
 import { EnhancedRequestWithAuth } from '@typings/api'
 
 const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()

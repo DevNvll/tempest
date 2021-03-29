@@ -1,5 +1,5 @@
 // Modules Import
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import { Auth } from 'aws-amplify'
 
@@ -30,14 +30,21 @@ export default function useAuth() {
   const loading = _useAuth((store) => store.loading)
   const user = _useAuth((store) => store.user)
 
+  const auth = useMemo(() => Auth, [])
+
   const checkUser = useCallback(async () => {
     try {
-      const user = await Auth.currentAuthenticatedUser()
+      const user = await auth.currentAuthenticatedUser()
       setUser(user)
     } catch (err) {
       console.log(err)
     }
   }, [])
+
+  const signIn = (email: string, password: string) =>
+    auth.signIn({ username: email, password })
+
+  const signOut = () => auth.signOut()
 
   useEffect(() => {
     checkUser()
@@ -45,6 +52,6 @@ export default function useAuth() {
 
   return {
     state: { loading: loading, user: user },
-    operations: {}
+    operations: { signOut, signIn }
   }
 }
