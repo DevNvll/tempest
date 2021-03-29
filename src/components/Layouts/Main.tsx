@@ -12,6 +12,7 @@ import Link from 'next/link'
 import useAuth from '@store/useAuth'
 import { CircleLoader, ClipLoader, RotateLoader } from 'react-spinners'
 import colors from '@constants/colors'
+import { useEffect } from 'react'
 
 function SidebarItem({ Icon, label, color = 'primary', href = '/' }) {
   const router = useRouter()
@@ -44,10 +45,19 @@ function SidebarItem({ Icon, label, color = 'primary', href = '/' }) {
 
 export default function MainLayout({ children }) {
   const {
-    state: { loading }
+    state: { loading, user },
+    operations: { signOut }
   } = useAuth()
 
-  return !loading ? (
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/login')
+    }
+  }, [loading])
+
+  return !loading && Boolean(user) ? (
     <>
       <NextSeo
         title="Exsign Studio"
@@ -73,6 +83,7 @@ export default function MainLayout({ children }) {
           <div>
             <li className="w-full flex flex-row items-center justify-center px-8 text-4xl">
               <button
+                onClick={() => signOut()}
                 title="Logout"
                 className={cs(
                   'focus:outline-none text-4xl p-3 transition-all duration-150 ease-out rounded hover:bg-opacity-10 hover:bg-red-600 hover:text-red-500'

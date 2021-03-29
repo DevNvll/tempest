@@ -29,22 +29,27 @@ export default function useAuth() {
   const setUser = _useAuth((store) => store.setUser)
   const loading = _useAuth((store) => store.loading)
   const user = _useAuth((store) => store.user)
+  const router = useRouter()
 
   const auth = useMemo(() => Auth, [])
 
-  const checkUser = useCallback(async () => {
+  const checkUser = async () => {
     try {
       const user = await auth.currentAuthenticatedUser()
       setUser(user)
     } catch (err) {
+      setUser(null)
       console.log(err)
     }
-  }, [])
+  }
 
   const signIn = (email: string, password: string) =>
     auth.signIn({ username: email, password })
 
-  const signOut = () => auth.signOut()
+  const signOut = async () => {
+    await auth.signOut()
+    router.replace('/login')
+  }
 
   useEffect(() => {
     checkUser()

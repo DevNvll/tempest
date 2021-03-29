@@ -14,7 +14,7 @@ export default function LoginPage() {
         username: email,
         password: password
       })
-      router.push('/')
+      router.replace('/')
     } catch (err) {
       console.log(err)
     }
