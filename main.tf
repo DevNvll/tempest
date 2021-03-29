@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = "tempest-infra"
+    bucket = "tempest-infra-state"
     key = "terraform.tfstate"
-    region = "us-west-2"
+    region = "us-east-1"
   }
   required_providers {
     aws = {
@@ -14,11 +14,11 @@ terraform {
 
 provider "aws" {
   profile = "default"
-  region  = "us-west-2"
+  region  = "us-east-1"
 }
 
 resource "aws_s3_bucket" "b" {
-  bucket = "tempest-files"
+  bucket = "tempest-storage"
   acl    = "private"
 
   cors_rule {
@@ -35,7 +35,7 @@ resource "aws_s3_bucket" "b" {
 }
 
 resource "aws_s3_bucket" "c" {
-  bucket = "tempest-infra"
+  bucket = "tempest-infra-state"
   acl    = "private"
 
   tags = {
