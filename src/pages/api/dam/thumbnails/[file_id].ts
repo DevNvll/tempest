@@ -1,4 +1,4 @@
-import s3 from '@services/s3'
+import s3 from '@services/server/s3'
 import sharp from 'sharp'
 import db from 'db'
 import { NextApiRequest, NextApiResponse } from 'next'
@@ -37,7 +37,7 @@ export default async function handler(
       })
 
       res.setHeader('location', thumb)
-      res.status(301).send('')
+      res.status(302).send('')
       return
     } catch (err) {
       const data = await s3

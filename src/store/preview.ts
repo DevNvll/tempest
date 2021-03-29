@@ -1,4 +1,4 @@
-import { getFile, getFolder } from '@services/dam'
+import { getFile, getFolder } from '@services/client/dam'
 
 import { useQuery } from 'react-query'
 import create from 'zustand'

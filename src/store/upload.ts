@@ -1,6 +1,6 @@
 import create from 'zustand'
 import { immer } from './middlewares'
-import { uploadFile } from '@services/dam'
+import { uploadFile } from '@services/client/dam'
 
 async function upload(file: File, parentId: string, onProgress) {
   await uploadFile(file, parentId, onProgress)

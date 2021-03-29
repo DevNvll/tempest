@@ -1,4 +1,4 @@
-import { deleteFolder, getFolderContent } from '@controllers/dam'
+import { deleteFolder, getFolderContent } from '@services/server/files'
 import cleanObject from '@lib/cleanObject'
 import { NextApiRequest, NextApiResponse } from 'next'
 import nc from 'next-connect'

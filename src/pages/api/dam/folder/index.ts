@@ -2,7 +2,7 @@ import db from 'db'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 import nc from 'next-connect'
-import { getFolderContent } from '@controllers/dam'
+import { getFolderContent } from '@services/server/files'
 
 const handler = nc()
   .get(async (req: NextApiRequest, res: NextApiResponse) => {

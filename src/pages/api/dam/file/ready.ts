@@ -1,6 +1,6 @@
 import nc from 'next-connect'
 import { NextApiRequest, NextApiResponse } from 'next'
-import s3 from 'services/s3'
+import s3 from '@services/server/s3'
 import { BUCKET, S3_FILES_PREFIX, S3_THUMBNAILS_PREFIX } from '@constants/app'
 
 const handler = nc<NextApiRequest, NextApiResponse>().get(async (req, res) => {

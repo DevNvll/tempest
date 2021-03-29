@@ -1,6 +1,6 @@
 import { BUCKET, S3_FILES_PREFIX, S3_THUMBNAILS_PREFIX } from '@constants/app'
 import humanFileSize from '@lib/human-file-size'
-import s3 from '@services/s3'
+import s3 from '@services/server/s3'
 import db from 'db'
 
 export async function getFileInfo(key: string) {

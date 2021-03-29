@@ -2,7 +2,7 @@ import db from 'db'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 import nc from 'next-connect'
-import s3 from '@services/s3'
+import s3 from '@services/server/s3'
 import humanFileSize from '@lib/human-file-size'
 import { BUCKET, S3_FILES_PREFIX } from '@constants/app'
 

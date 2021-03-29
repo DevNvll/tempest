@@ -2,9 +2,9 @@ import nc from 'next-connect'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 import db from 'db'
-import s3 from 'services/s3'
+import s3 from '@services/server/s3'
 
-import { deleteFile, getFileInfo } from '@controllers/dam'
+import { deleteFile, getFileInfo } from '@services/server/files'
 import humanFileSize from '@lib/human-file-size'
 import { BUCKET, S3_FILES_PREFIX, S3_THUMBNAILS_PREFIX } from '@constants/app'
 import cleanObject from '@lib/cleanObject'

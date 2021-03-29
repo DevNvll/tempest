@@ -1,4 +1,4 @@
-import { getStorage } from '@services/user'
+import { getStorage } from '@services/client/user'
 import { useQuery } from 'react-query'
 
 function useStorage(folderId?: string) {

@@ -1,4 +1,4 @@
-import * as services from '@services/dam'
+import * as services from '@services/client/dam'
 import { ModalTypes } from 'constants/modal'
 import { useMutation, useQuery } from 'react-query'
 import { ItemType } from 'typings/files'
