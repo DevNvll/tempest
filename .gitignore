@@ -7,3 +7,4 @@ yarn.lock
 .tfstate
 .terraform
 .terraform*
+.vercel
