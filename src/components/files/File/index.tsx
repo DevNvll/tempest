@@ -60,7 +60,12 @@ const File = ({
                   }
                 },
                 onDoubleClick: () => {
-                  router.push('/files/folder/' + id)
+                  if (
+                    !isDragging &&
+                    ['image', 'video', 'audio'].includes(type)
+                  ) {
+                    preview.openLightbox('file', id)
+                  }
                 }
               }}
             >

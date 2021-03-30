@@ -7,10 +7,13 @@ import { devtools } from 'zustand/middleware'
 import { immer } from './middlewares'
 
 interface PreviewStore extends State {
+  lightbox: boolean
   enabled: boolean
   selectedId: string
   selectedType: string
   setPreview: (type: ItemType, id: string) => void
+  openLightbox: (type: ItemType, id: string) => void
+  closeLightbox: () => void
   clear: () => void
   toggle: () => void
 }
@@ -19,6 +22,7 @@ const _usePreview = create<PreviewStore>(
   devtools(
     immer((set, get) => ({
       enabled: true,
+      lightbox: false,
       selectedId: null,
       selectedType: null,
       setPreview: (type: ItemType, id: string) => {
@@ -27,9 +31,21 @@ const _usePreview = create<PreviewStore>(
           state.selectedType = type
         })
       },
+      openLightbox: (type: ItemType, id: string) => {
+        set((state) => {
+          state.lightbox = true
+          state.selectedId = id
+          state.selectedType = type
+        })
+      },
+      closeLightbox: () => {
+        set((state) => {
+          state.lightbox = false
+          state.selectedId = null
+        })
+      },
       clear: () => {
         set((state) => {
-          state.selectedId = null
           state.selectedId = null
         })
       },

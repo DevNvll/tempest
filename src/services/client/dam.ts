@@ -112,3 +112,11 @@ export async function moveItems(
   })
   return data
 }
+
+export async function deleteItems(items: {
+  folders?: string[]
+  files?: string[]
+}) {
+  const { data } = await apiClient.post('/dam/delete-multiple', items)
+  return data
+}

@@ -63,10 +63,10 @@ const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
       })
     })
     await Promise.all([...foldersToMove, ...filesToMove])
-    res.status(200).send({ error: true })
+    res.status(200).send({ error: false })
   })
   .delete(async (req, res) => {
-    const { folders, files, newParentId } = req.body
+    const { folders, files } = req.body
 
     const foldersToDelete = folders.map((f) => {
       return deleteFolder(f, req.user.id)
@@ -75,7 +75,7 @@ const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
       return deleteFile(f, req.user.id)
     })
     await Promise.all([...foldersToDelete, ...filesToDelete])
-    res.status(200).send({ error: true })
+    res.status(200).send({ error: false })
   })
 
 export default handler

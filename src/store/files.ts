@@ -16,28 +16,26 @@ interface FilesStore extends State {
 }
 
 const _useFiles = create<FilesStore>(
-  devtools(
-    immer((set) => ({
-      selectedItems: [],
-      lastSelected: null,
-      setSelectedItems: (items) =>
-        set((state) => {
-          state.selectedItems = items
-        }),
-      setLastSelected: (index: number) =>
-        set((state) => {
-          state.lastSelected = index
-        }),
-      clearSelection: () =>
-        set((state) => {
-          state.selectedItems = []
-          state.lastSelected = -1
-        })
-    }))
-  )
+  immer((set) => ({
+    selectedItems: [],
+    lastSelected: null,
+    setSelectedItems: (items) =>
+      void set((state) => {
+        state.selectedItems = items
+      }),
+    setLastSelected: (index: number) =>
+      void set((state) => {
+        state.lastSelected = index
+      }),
+    clearSelection: () =>
+      void set((state) => {
+        state.selectedItems = []
+        state.lastSelected = -1
+      })
+  }))
 )
 
-function useFiles(folderId?: string) {
+function useFiles() {
   const router = useRouter()
 
   const _folderId = router.query.folder_id as string
@@ -50,10 +48,16 @@ function useFiles(folderId?: string) {
     }
   }
 
+  function getRootEndpoint() {
+    return {
+      files: '',
+      trash: 'trash'
+    }[getMode()]
+  }
+
   const { data: folder, isSuccess, isLoading, refetch } = useQuery(
     ['/dam/folders/', _folderId ? _folderId : getMode()],
-    () =>
-      _folderId ? services.getFolder(_folderId) : services.getRootFolder(),
+    () => services.getFolder(_folderId || getRootEndpoint()),
     { enabled: !!_folderId || router.pathname.startsWith('/files') }
   )
 
@@ -88,6 +92,25 @@ function useFiles(folderId?: string) {
         : [],
     [folder]
   )
+
+  function findById(id: string) {
+    return allItems.find((i) => i.id === id)
+  }
+
+  function separateFilesAndFolders(itemIds: string[]) {
+    const payload = {
+      folders: itemIds
+        .map((i) => findById(i))
+        .filter((i) => i.type === 'folder')
+        .map((i) => i.id),
+      files: itemIds
+        .map((i) => findById(i))
+        .filter((i) => i.type === 'file')
+        .map((i) => i.id)
+    }
+
+    return payload
+  }
 
   function handleSelect(id: string, withShift?: boolean) {
     const foldersIds = folder.folders.map((i) => i.id)
@@ -124,10 +147,6 @@ function useFiles(folderId?: string) {
     }
   }
 
-  function findById(id: string) {
-    return allItems.find((i) => i.id === id)
-  }
-
   const createFolderMutation = useMutation('/dam/folder', services.createFolder)
 
   const createFolder = (parentId: string, name: string) =>
@@ -150,6 +169,18 @@ function useFiles(folderId?: string) {
   const deleteItem = async ({ type, id }: { id: string; type: ItemType }) =>
     deleteItemMutation.mutateAsync({ id, type })
 
+  async function deleteSelected() {
+    console.log(selectedItems)
+    const payload = separateFilesAndFolders(selectedItems)
+
+    await services.deleteItems(payload)
+    refetch()
+  }
+
+  async function selectAll() {
+    setSelectedItems(allItems.map((i) => i.id))
+  }
+
   return {
     state: {
       folderId: folder?.id || _folderId,
@@ -168,10 +199,13 @@ function useFiles(folderId?: string) {
       handleSelect,
       clearSelection,
       setSelectedItems,
+      selectAll,
       findById,
       createFolder,
       renameItem,
-      deleteItem
+      deleteItem,
+      deleteSelected,
+      separateFilesAndFolders
     }
   }
 }
