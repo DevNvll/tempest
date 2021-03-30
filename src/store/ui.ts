@@ -9,7 +9,7 @@ interface UIStore extends State {
   messages: Array<{ message: string; type: ToastTypes }>
   currentModals: Array<{ type: ModalTypes; props: any }>
   openModal: (params: OpenModalParams) => void
-  closeModal: (modalType: ModalType) => void
+  closeModal: (modalType: ModalTypes) => void
   toast: (message: string, type?: ToastTypes) => void
   clearToasts: () => void
 }
@@ -23,11 +23,11 @@ const useUI = create<UIStore>(
         (state) =>
           void state.currentModals.push({ type: ModalTypes[modalType], props })
       ),
-    closeModal: (modalType: ModalType) =>
+    closeModal: (modalType: ModalTypes) =>
       set(
         (state) =>
           void (state.currentModals = state.currentModals.filter(
-            (modal) => modal.type === ModalTypes[modalType]
+            (modal) => modal.type === modalType
           ))
       ),
     toast: (message: string, type: ToastTypes = 'success') => {
