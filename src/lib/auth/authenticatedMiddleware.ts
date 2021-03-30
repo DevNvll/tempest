@@ -1,8 +1,17 @@
 import { NextApiResponse } from 'next'
 import nc from 'next-connect'
-import { withSSRContext } from 'aws-amplify'
+import Amplify, { withSSRContext } from 'aws-amplify'
 import { EnhancedRequestWithAuth } from '@typings/api'
-import '../../config/amplify'
+
+Amplify.configure({
+  Auth: {
+    region: 'us-east-1',
+    userPoolId: process.env.NEXT_PUBLIC_USER_POOL_ID,
+    userPoolWebClientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID,
+    authenticationFlowType: 'USER_PASSWORD_AUTH'
+  },
+  ssr: true
+})
 
 const middleware = nc<EnhancedRequestWithAuth, NextApiResponse>().use(
   async (req, res, next) => {
