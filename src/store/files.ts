@@ -227,6 +227,8 @@ function useFiles() {
         draft.files = draft.files.filter((f) => !files.includes(f.id))
       })
 
+      queryClient.invalidateQueries(['/dam/folders/', variables.parentId])
+
       queryClient.setQueryData(folderQueryKey, (old) => newFolder)
 
       return { folder }
