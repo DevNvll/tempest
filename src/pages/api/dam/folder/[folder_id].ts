@@ -10,11 +10,16 @@ import { EnhancedRequestWithAuth } from '@typings/api'
 const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
   .use(authenticated)
   .get(async (req, res) => {
-    const folderId = req.query.folder_id as string
+    try {
+      const folderId = req.query.folder_id as string
 
-    const content = await getFolderContent(req.user.id, folderId)
+      const content = await getFolderContent(req.user.id, folderId)
 
-    res.send(content)
+      res.send(content)
+    } catch (err) {
+      console.log(err)
+      res.status(400).send(err)
+    }
   })
   .patch(async (req, res) => {
     const { name } = req.body

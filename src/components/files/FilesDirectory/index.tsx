@@ -22,7 +22,6 @@ import { useUI } from '@store/ui'
 import ContextMenus from '../ContextMenus'
 import { useDropzone } from 'react-dropzone'
 import clsx from 'clsx'
-import { moveItems } from '@services/client/dam'
 import { useMouse } from 'react-use'
 import PreviewLightbox from '@components/PreviewLightbox'
 
@@ -37,13 +36,12 @@ export default function FilesDirectory() {
       clearSelection,
       handleSelect,
       findById,
-      createFolder,
-      deleteItem,
-      renameItem,
+
       separateFilesAndFolders,
       deleteSelected,
       selectAll
-    }
+    },
+    mutations: { deleteItem, renameItem, moveItems }
   } = useFiles()
   const router = useRouter()
   const preview = usePreview()
@@ -90,7 +88,7 @@ export default function FilesDirectory() {
           return
         }
         case 'DELETE': {
-          await deleteItem({ id, type: 'file' })
+          await deleteItem.mutate({ id, type: 'file' })
           ui.toast('File deleted successfully')
           refetch()
           return
@@ -101,9 +99,9 @@ export default function FilesDirectory() {
             props: {
               id,
               type: 'file',
+              initialName: data.name,
               onRename: async ({ id, newName }) => {
-                await renameItem({ id, type: 'file', newName })
-                refetch()
+                ui.toast('File created successfully')
               }
             }
           })
@@ -117,9 +115,8 @@ export default function FilesDirectory() {
           return
         }
         case 'DELETE': {
-          await deleteItem({ id, type: 'folder' })
+          await deleteItem.mutate({ id, type: 'folder' })
           ui.toast('Folder deleted successfully')
-          refetch()
           return
         }
         case 'RENAME': {
@@ -128,9 +125,9 @@ export default function FilesDirectory() {
             props: {
               id,
               type: 'folder',
-              onRename: async ({ id, newName }) => {
-                await renameItem({ id, type: 'folder', newName })
-                refetch()
+              initialName: data.name,
+              onRename: async () => {
+                ui.toast('File renamed successfully')
               }
             }
           })
@@ -142,10 +139,8 @@ export default function FilesDirectory() {
         modalType: 'CreateFolder',
         props: {
           parentId: folderId,
-          onCreate: async ({ parentId, name }) => {
-            await createFolder(parentId, name)
+          onCreate: async () => {
             ui.toast('Folder created successfully')
-            refetch()
           }
         }
       })
@@ -270,9 +265,12 @@ export default function FilesDirectory() {
                     if (selectedItems.indexOf(itemId) !== -1) {
                       // multiple
                       const payload = separateFilesAndFolders(selectedItems)
-                      await moveItems(targetFolderId, payload)
+                      await moveItems.mutate({
+                        parentId: targetFolderId,
+                        items: payload
+                      })
                       ui.toast('Items moved successfully')
-                      refetch()
+                      // refetch()
                     } else {
                       // single
                       const { type } = findById(itemId)
@@ -280,9 +278,12 @@ export default function FilesDirectory() {
                         [type === 'folder' ? 'folders' : 'files']: [itemId]
                       }
 
-                      await moveItems(targetFolderId, payload)
+                      await moveItems.mutate({
+                        parentId: targetFolderId,
+                        items: payload
+                      })
                       ui.toast('Items moved successfully')
-                      refetch()
+                      // refetch()
                     }
                   }
                 }}

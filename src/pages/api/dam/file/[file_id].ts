@@ -14,30 +14,35 @@ import { EnhancedRequestWithAuth } from '@typings/api'
 const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
   .use(authenticated)
   .get(async (req, res) => {
-    const fileId = req.query.file_id as string
-    const file = await db.file.findUnique({
-      where: {
-        id: fileId
-      },
-      include: {
-        parent: true
-      }
-    })
+    try {
+      const fileId = req.query.file_id as string
+      const file = await db.file.findUnique({
+        where: {
+          id: fileId
+        },
+        include: {
+          parent: true
+        }
+      })
 
-    const fileInfo = await getFileInfo(file.storageKey)
+      const fileInfo = await getFileInfo(file.storageKey)
 
-    const signedUrl = await s3.getSignedUrl('getObject', {
-      Bucket: BUCKET,
-      Key: S3_FILES_PREFIX + file.storageKey,
-      ResponseContentDisposition: 'attachment;filename=' + file.name
-    })
+      const signedUrl = await s3.getSignedUrl('getObject', {
+        Bucket: BUCKET,
+        Key: S3_FILES_PREFIX + file.storageKey,
+        ResponseContentDisposition: 'attachment;filename=' + file.name
+      })
 
-    res.send({
-      ...file,
-      readableSize: humanFileSize(fileInfo.ContentLength),
-      size: fileInfo.ContentLength,
-      signedUrl
-    })
+      res.send({
+        ...file,
+        readableSize: humanFileSize(fileInfo.ContentLength),
+        size: fileInfo.ContentLength,
+        signedUrl
+      })
+    } catch (err) {
+      console.log(err)
+      res.status(500).send(err)
+    }
   })
   .delete(async (req, res) => {
     const fileId = req.query.file_id as string

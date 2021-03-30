@@ -1,6 +1,7 @@
 import Button from '@components/UI/Button'
 import Input from '@components/UI/Input'
 import { createFolder } from '@services/client/dam'
+import { useFiles } from '@store/files'
 import { ModalProps } from '@typings/modal'
 import { Form, Formik } from 'formik'
 
@@ -14,10 +15,18 @@ const ModalCreateFolder: React.FC<ModalProps<CreateFolderModalProps>> = ({
   onCreate,
   close
 }) => {
+  const files = useFiles()
+
   async function handleCreate(values) {
-    await onCreate({ parentId, name: values.name })
+    const payload = {
+      parentId,
+      name: values.name
+    }
+    await files.mutations.createFolder.mutateAsync(payload)
+    onCreate(payload)
     close()
   }
+
   return (
     <div className="flex flex-col space-y-4">
       <h1 className="text-2xl font-bold">Create Folder</h1>

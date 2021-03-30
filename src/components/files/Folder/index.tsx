@@ -62,7 +62,7 @@ const Folder = ({
           <ContextMenuTrigger
             id="folder-context-menu"
             collect={() => {
-              return { id, type: 'folder' }
+              return { id, type: 'folder', name }
             }}
             holdToDisplay={999999}
             attributes={{

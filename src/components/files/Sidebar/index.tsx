@@ -1,5 +1,4 @@
 import Progress from '@components/UI/Progress'
-import { useFiles } from '@store/files'
 import { useStorage } from '@store/usage'
 import clsx from 'clsx'
 import Link from 'next/link'

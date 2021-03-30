@@ -26,7 +26,7 @@ const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
           userId
         }
       })
-      res.send(folder)
+      res.send({ ...folder, type: 'folder' })
     } catch (err) {
       res.status(400).send({ error: true })
     }

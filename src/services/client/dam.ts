@@ -102,10 +102,13 @@ export async function renameItem({
   }
 }
 
-export async function moveItems(
-  parentId: string,
+export async function moveItems({
+  parentId,
+  items
+}: {
+  parentId: string
   items: { folders?: string[]; files?: string[] }
-) {
+}) {
   const { data } = await apiClient.patch('/dam/multiple', {
     newParentId: parentId,
     ...items

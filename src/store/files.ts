@@ -1,11 +1,13 @@
 import * as services from '@services/client/dam'
-import { useMutation, useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { ItemType } from 'typings/files'
 import create, { State } from 'zustand'
 import { immer } from './middlewares'
 import { devtools } from 'zustand/middleware'
 import { useMemo } from 'react'
 import { useRouter } from 'next/router'
+import produce from 'immer'
+import cuid from 'cuid'
 
 interface FilesStore extends State {
   selectedItems: string[]
@@ -37,8 +39,10 @@ const _useFiles = create<FilesStore>(
 
 function useFiles() {
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const _folderId = router.query.folder_id as string
+  const folderQueryKey = ['/dam/folders/', _folderId ? _folderId : getMode()]
 
   function getMode() {
     if (router.pathname.startsWith('/files/trash')) {
@@ -55,8 +59,13 @@ function useFiles() {
     }[getMode()]
   }
 
-  const { data: folder, isSuccess, isLoading, refetch } = useQuery(
-    ['/dam/folders/', _folderId ? _folderId : getMode()],
+  const {
+    data: folder,
+    isSuccess,
+    isLoading,
+    refetch
+  } = useQuery(
+    folderQueryKey,
     () => services.getFolder(_folderId || getRootEndpoint()),
     { enabled: !!_folderId || router.pathname.startsWith('/files') }
   )
@@ -77,19 +86,7 @@ function useFiles() {
   } = _useFiles()
 
   const allItems = useMemo(
-    () =>
-      folder
-        ? [
-            ...folder?.files.map((f) => {
-              f.type = 'file'
-              return f
-            }),
-            ...folder?.folders.map((f) => {
-              f.type = 'folder'
-              return f
-            })
-          ]
-        : [],
+    () => (folder ? [...folder?.files, ...folder?.folders] : []),
     [folder]
   )
 
@@ -147,30 +144,99 @@ function useFiles() {
     }
   }
 
-  const createFolderMutation = useMutation('/dam/folder', services.createFolder)
+  const createFolder = useMutation(services.createFolder, {
+    onSettled: async (newFolder) => {
+      await queryClient.cancelQueries(folderQueryKey)
 
-  const createFolder = (parentId: string, name: string) =>
-    createFolderMutation.mutateAsync({ parentId, name })
+      const folders: any = queryClient.getQueryData(folderQueryKey)
 
-  const renameItemMutation = useMutation('/dam/', services.renameItem)
+      let newFolders = produce(folders, (draft) => {
+        draft.folders.push(newFolder)
+      })
 
-  const renameItem = async ({
-    id,
-    newName,
-    type
-  }: {
-    id: string
-    newName: string
-    type: ItemType
-  }) => renameItemMutation.mutateAsync({ id, newName, type })
+      queryClient.setQueryData(folderQueryKey, (old) => newFolders)
+    }
+  })
 
-  const deleteItemMutation = useMutation('/dam/', services.deleteItem)
+  const renameItem = useMutation(services.renameItem, {
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries(folderQueryKey)
 
-  const deleteItem = async ({ type, id }: { id: string; type: ItemType }) =>
-    deleteItemMutation.mutateAsync({ id, type })
+      const folders: any = queryClient.getQueryData(folderQueryKey)
+
+      let newFolders = produce(folders, (draft) => {
+        if (variables.type === 'folder') {
+          const id = draft.folders.findIndex((f) => f.id === variables.id)
+          draft.folders[id].name = variables.newName
+        } else {
+          const id = draft.files.findIndex((f) => f.id === variables.id)
+          draft.files[id].name = variables.newName
+        }
+      })
+
+      queryClient.setQueryData(folderQueryKey, (old) => newFolders)
+
+      return { folders }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(folderQueryKey)
+    }
+  })
+
+  const deleteItem = useMutation(services.deleteItem, {
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries(folderQueryKey)
+
+      const folder: any = queryClient.getQueryData(folderQueryKey)
+
+      let newFolder = produce(folder, (draft) => {
+        if (variables.type === 'folder') {
+          draft.folders = draft.folders.filter((f) => f.id !== variables.id)
+        } else {
+          draft.files = draft.files.filter((f) => f.id !== variables.id)
+        }
+      })
+
+      queryClient.setQueryData(folderQueryKey, (old) => newFolder)
+
+      return { folder }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(folderQueryKey)
+    }
+  })
+
+  const moveItems = useMutation(services.moveItems, {
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries(folderQueryKey)
+
+      const folder: any = queryClient.getQueryData(folderQueryKey)
+
+      let newFolder = produce(folder, (draft) => {
+        const targetId = draft.folders.findIndex(
+          (f) => f.id === variables.parentId
+        )
+
+        const files = variables.items.files || []
+        const folders = variables.items.folders || []
+
+        draft.folders[targetId].numberOfItems =
+          draft.folders[targetId].numberOfItems + folders.length + files.length
+
+        draft.folders = draft.folders.filter((f) => !folders.includes(f.id))
+        draft.files = draft.files.filter((f) => !files.includes(f.id))
+      })
+
+      queryClient.setQueryData(folderQueryKey, (old) => newFolder)
+
+      return { folder }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(folderQueryKey)
+    }
+  })
 
   async function deleteSelected() {
-    console.log(selectedItems)
     const payload = separateFilesAndFolders(selectedItems)
 
     await services.deleteItems(payload)
@@ -183,7 +249,7 @@ function useFiles() {
 
   return {
     state: {
-      folderId: folder?.id || _folderId,
+      folderId: _folderId || getMode(),
       mode: getMode(),
       allItems,
       selectedItems,
@@ -201,11 +267,14 @@ function useFiles() {
       setSelectedItems,
       selectAll,
       findById,
+      deleteSelected,
+      separateFilesAndFolders
+    },
+    mutations: {
       createFolder,
       renameItem,
       deleteItem,
-      deleteSelected,
-      separateFilesAndFolders
+      moveItems
     }
   }
 }

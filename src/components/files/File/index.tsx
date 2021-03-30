@@ -43,7 +43,7 @@ const File = ({
             <ContextMenuTrigger
               id="file-context-menu"
               collect={() => {
-                return { id, type: 'file' }
+                return { id, type: 'file', name }
               }}
               holdToDisplay={999999}
               attributes={{
