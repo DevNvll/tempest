@@ -1,7 +1,8 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiResponse } from 'next'
 import nc from 'next-connect'
 import { withSSRContext } from 'aws-amplify'
 import { EnhancedRequestWithAuth } from '@typings/api'
+import '../../config/amplify'
 
 const middleware = nc<EnhancedRequestWithAuth, NextApiResponse>().use(
   async (req, res, next) => {
