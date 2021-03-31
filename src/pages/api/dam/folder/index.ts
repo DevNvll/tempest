@@ -1,5 +1,5 @@
 import db from 'db'
-import { getFolderContent } from '@services/server/files'
+import { getFolderContent, getRootFolder } from '@services/server/files'
 import { authenticated } from '@lib/auth/authenticatedMiddleware'
 import nc from 'next-connect'
 import { NextApiRequest, NextApiResponse } from 'next'
@@ -15,8 +15,13 @@ const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
     res.send(content)
   })
   .post(async (req, res) => {
-    const { parentId, name } = req.body
+    let { parentId, name } = req.body
     const userId = req.user.id
+
+    if (parentId === 'files') {
+      const folder = await getRootFolder('root', userId)
+      parentId = folder.id
+    }
 
     try {
       const folder = await db.folder.create({
