@@ -38,6 +38,7 @@ const ModalCreateFolder: React.FC<ModalProps<CreateFolderModalProps>> = ({
                 <Input name="name" placeholder="Folder name" />
                 <div className="flex flex-row self-end space-x-2 w-full justify-end">
                   <Button
+                    type="button"
                     variant="link"
                     onClick={() => {
                       close()

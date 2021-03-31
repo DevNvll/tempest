@@ -47,6 +47,7 @@ const ModalRename: React.FC<ModalProps<RenameItemModalProps>> = ({
                 <Input name="name" placeholder="Folder name" autoFocus />
                 <div className="flex flex-row self-end space-x-2 w-full justify-end">
                   <Button
+                    type="button"
                     variant="link"
                     onClick={() => {
                       close()
