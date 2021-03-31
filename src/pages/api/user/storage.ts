@@ -6,40 +6,16 @@ import { authenticated } from '@lib/auth/authenticatedMiddleware'
 import nc from 'next-connect'
 import { NextApiResponse } from 'next'
 import { EnhancedRequestWithAuth } from '@typings/api'
-
-const MAX_SIZE = 16106127360
+import { getUserStorage } from '@services/server/storage'
 
 const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
   .use(authenticated)
   .get(async (req, res) => {
     const userId = req.user.id
 
-    let totalSize = 0,
-      files = 0,
-      ContinuationToken
+    const storage = await getUserStorage(userId)
 
-    do {
-      var resp = await s3
-        .listObjectsV2({
-          Bucket: BUCKET,
-          Prefix: `${S3_FILES_PREFIX}${userId}`,
-          ContinuationToken
-        })
-        .promise()
-      resp.Contents.forEach((o) => {
-        totalSize += o.Size
-        files += 1
-      })
-      ContinuationToken = resp.NextContinuationToken
-    } while (ContinuationToken)
-
-    res.send({
-      totalFiles: files,
-      sizeReadable: humanFileSize(totalSize),
-      maxReadable: humanFileSize(MAX_SIZE),
-      size: totalSize,
-      max: MAX_SIZE
-    })
+    res.send(storage)
   })
 
 export default handler

@@ -1,8 +1,10 @@
 import { BUCKET, S3_FILES_PREFIX, S3_THUMBNAILS_PREFIX } from '@constants/app'
+import cleanObject from '@lib/cleanObject'
 import humanFileSize from '@lib/human-file-size'
 import transformToTree from '@lib/transform-to-tree'
 import s3 from '@services/server/s3'
 import db from 'db'
+import { pick } from 'lodash'
 
 export async function getFileInfo(key: string) {
   const file = await s3
@@ -24,7 +26,7 @@ export async function getFolderContent(
     throw new Error('Invalid user')
   }
 
-  if (folderId === 'root') {
+  if (folderId === 'root' || folderId === 'files') {
     folder = await getRootFolder('root', userId)
   } else if (folderId === 'trash') {
     folder = await getRootFolder('trash', userId)
@@ -127,6 +129,23 @@ export async function getRootFolder(root: 'root' | 'trash', userId: string) {
   })
 }
 
+export async function createFolder(params: {
+  parentId: string
+  name: string
+  userId: string
+}) {
+  if (params.parentId === 'files' || params.parentId === 'root') {
+    const folder = await getRootFolder('root', params.userId)
+    params.parentId = folder.id
+  }
+
+  const folder = await db.folder.create({
+    data: params
+  })
+
+  return { ...folder, type: 'folder' }
+}
+
 export async function deleteFolder(folderId: string, userId: string) {
   const trash = await getRootFolder('trash', userId)
 
@@ -163,6 +182,37 @@ export async function deleteFolder(folderId: string, userId: string) {
 
     return folder
   }
+}
+
+export async function updateFolder(
+  folderId: string,
+  params: { userId: string; name: string }
+) {
+  const folder = await db.folder.findFirst({
+    where: {
+      id: folderId
+    },
+    select: {
+      userId: true
+    }
+  })
+
+  if (folder.userId !== params.userId) {
+    throw new Error('Forbidden')
+  }
+
+  const editableFields = ['name', 'parentId']
+
+  const patchPayload = cleanObject(pick(params, editableFields))
+
+  const editedFolder = await db.folder.update({
+    where: {
+      id: folderId
+    },
+    data: patchPayload
+  })
+
+  return editedFolder
 }
 
 export async function deleteFile(fileId: string, userId: string) {

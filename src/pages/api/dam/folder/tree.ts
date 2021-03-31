@@ -1,12 +1,9 @@
-import db from 'db'
-import { generateTree, getFolderContent } from '@services/server/files'
+import { generateTree } from '@services/server/files'
 import { authenticated } from '@lib/auth/authenticatedMiddleware'
 import nc from 'next-connect'
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiResponse } from 'next'
 import { EnhancedRequestWithAuth } from '@typings/api'
 import _ from 'lodash'
-import transformToTree from '@lib/transform-to-tree'
-import { getRootFolder } from '@services/client/dam'
 
 const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
   .use(authenticated)

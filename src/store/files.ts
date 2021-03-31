@@ -54,7 +54,7 @@ function useFiles() {
 
   function getRootEndpoint() {
     return {
-      files: '',
+      files: 'files',
       trash: 'trash'
     }[getMode()]
   }

@@ -1,4 +1,8 @@
-import { deleteFolder, getFolderContent } from '@services/server/files'
+import {
+  deleteFolder,
+  getFolderContent,
+  updateFolder
+} from '@services/server/files'
 import cleanObject from '@lib/cleanObject'
 import db from 'db'
 import pick from 'lodash/pick'
@@ -26,38 +30,12 @@ const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
     const userId = req.user.id
     const folderId = req.query.folder_id as string
 
-    const folder = await db.folder.findFirst({
-      where: {
-        id: folderId
-      },
-      select: {
-        userId: true
-      }
+    const folder = await updateFolder(folderId, {
+      userId,
+      name
     })
-    if (folder.userId !== userId) {
-      res.status(404).send({
-        success: false
-      })
-      return
-    }
 
-    const editableFields = ['name', 'parentId']
-
-    const patchPayload = cleanObject(
-      pick(
-        {
-          name
-        },
-        editableFields
-      )
-    )
-
-    await db.folder.update({
-      where: {
-        id: folderId
-      },
-      data: patchPayload
-    })
+    res.send(folder)
   })
   .delete(async (req, res) => {
     const folderId = req.query.folder_id as string
