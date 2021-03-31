@@ -41,7 +41,7 @@ export default function Button({
       style={
         width && height
           ? {
-              width: `${width}px`,
+              // width: `${width}px`,
               height: `${height}px`
             }
           : {}

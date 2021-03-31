@@ -24,6 +24,7 @@ import { useDropzone } from 'react-dropzone'
 import clsx from 'clsx'
 import { useMouse } from 'react-use'
 import PreviewLightbox from '@components/PreviewLightbox'
+import { ModalTypes } from '@constants/modal'
 
 export default function FilesDirectory() {
   const mouseRef = useRef(null)
@@ -95,7 +96,7 @@ export default function FilesDirectory() {
         }
         case 'RENAME': {
           ui.openModal({
-            modalType: 'Rename',
+            modalType: ModalTypes.Rename,
             props: {
               id,
               type: 'file',
@@ -121,7 +122,7 @@ export default function FilesDirectory() {
         }
         case 'RENAME': {
           ui.openModal({
-            modalType: 'Rename',
+            modalType: ModalTypes.Rename,
             props: {
               id,
               type: 'folder',
@@ -136,7 +137,7 @@ export default function FilesDirectory() {
       }
     } else if (data.type === 'background') {
       ui.openModal({
-        modalType: 'CreateFolder',
+        modalType: ModalTypes.CreateFolder,
         props: {
           parentId: folderId,
           onCreate: async () => {

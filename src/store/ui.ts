@@ -19,18 +19,16 @@ const useUI = create<UIStore>(
     messages: [],
     currentModals: [],
     openModal: ({ modalType, props }) =>
-      set(
-        (state) =>
-          void state.currentModals.push({ type: ModalTypes[modalType], props })
-      ),
-    closeModal: (modalType: ModalTypes) =>
-      set(
-        (state) =>
-          void (state.currentModals = state.currentModals.filter(
-            (modal) => modal.type === modalType
-          ))
-      ),
-    toast: (message: string, type: ToastTypes = 'success') => {
+      set((state) => {
+        state.currentModals.push({ type: modalType, props })
+      }),
+    closeModal: (modalType) =>
+      set((state) => {
+        state.currentModals = state.currentModals.filter(
+          (modal) => modal.type !== modalType
+        )
+      }),
+    toast: (message, type = 'success') => {
       set((state) => {
         state.messages.push({ message, type })
       })
