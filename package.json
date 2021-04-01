@@ -1,10 +1,10 @@
 {
   "scripts": {
-    "dev": "next dev",
+    "dev": "cross-env NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
     "build-static": "next build && next export",
     "export": "next export",
-    "start": "next start",
+    "start": "next start -p $PORT",
     "generate": "prisma generate",
     "migrate": "prisma migrate dev --preview-feature",
     "push": "prisma db push --preview-feature",
@@ -64,6 +64,7 @@
     "@types/react": "^16.9.49",
     "autoprefixer": "^10.2.5",
     "commitizen": "^4.2.3",
+    "cross-env": "^7.0.3",
     "cz-conventional-changelog": "3.3.0",
     "postcss": "^8.1.8",
     "postcss-flexbugs-fixes": "^4.2.1",
