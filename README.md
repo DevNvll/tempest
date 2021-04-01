@@ -1,74 +1,36 @@
-# Next.js
+# Tempest Files
 
-To add Tailwind to a Next (^9.2.0) project, start by installing `tailwindcss`, `postcss-import` and `autoprefixer`:
+Open source Cloud File storage SaaS. Made with fullstack node, nextjs and tailwind.
 
-```sh
-npm install tailwindcss postcss-import autoprefixer --save
-```
+This project was created with the purpose of learning new tecnologies and best practices and how to apply them in real world projects, so the usage of "too-overkill-for-this-project" tecnologies such as Terraform is on purpose. 
 
-Next, set up your PostCSS plugins by creating a `postcss.config.js` file and adding the following configuration:
+![image](https://user-images.githubusercontent.com/3536261/113192067-b2c2d600-9234-11eb-9f0c-df23d60ab90e.png)
 
-```js
-module.exports = {
-  plugins: [
-    "postcss-import",
-    "tailwindcss",
-    "autoprefixer"
-  ]
-};
+## Tecnologies
+- NextJs
+- React
+- NodeJS
+- NextJs API Routes
+- S3 for storage
+- PostgreSQL
+- Aws Cognito
+- Lambda for thumbnail generator
+- Terraform
 
-```
+## Features
+- Folder management
+- Upload via S3 PUT Signed URL
+- Upload Queue
+- File Preview
+- Image Thumbnails
+- File Download
+- Real Time folders
+- Authentication via cognito
+- Drag n' Drop of files and folders
+- ~User Analytics dashboard~
+- ~Sharing~
+- ~Password sharing~
+- ~Team Workspaces~
 
-Next, create a CSS file for your Tailwind styles. We've used `css/tailwind.css` for this example:
-
-```css
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-```
-
-Finally, import your CSS in your `_app.js` component to make them available globally:
-
-```jsx
-import React from 'react'
-import App from 'next/app'
-import '../css/tailwind.css'
-
-class MyApp extends App {
-  render() {
-    const { Component, pageProps } = this.props
-    return <Component {...pageProps} />
-  }
-}
-
-export default MyApp
-```
-## Setting up Purgecss (optional)
-To add Purgecss, start by installing `@fullhuman/postcss-purgecss`. 
-
-```sh
-npm install @fullhuman/postcss-purgecss --save
-```
-
-Finally, add Purgecss to PostCSS plugins by updating the `postcss.config.js` file and adding the following configuration:
-
-```js
-const purgecss = [
-  "@fullhuman/postcss-purgecss",
-  {
-    content: ["./components/**/*.js", "./pages/**/*.js"],
-    defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
-  }
-];
-module.exports = {
-  plugins: [
-    "postcss-import",
-    "tailwindcss",
-    "autoprefixer",
-    ...(process.env.NODE_ENV === "production" ? [purgecss] : [])
-  ]
-};
-
-```
-
-[Learn more about using Purgecss with Tailwind here.](https://tailwindcss.com/docs/controlling-file-size#setting-up-purgecss)
+## License
+MIT
