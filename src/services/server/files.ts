@@ -290,3 +290,16 @@ export async function generateTree(userId: string, folderId?: string) {
   const tree = transformToTree(items)
   return tree
 }
+
+export async function getRecentFiles(userId: string, limit?: number) {
+  const files = db.file.findMany({
+    where: {
+      userId
+    },
+    take: limit || undefined,
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
+  return files
+}
