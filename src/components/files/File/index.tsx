@@ -41,7 +41,11 @@ const File = ({
         <div>
           <div className="group directory-item">
             <ContextMenuTrigger
-              id="file-context-menu"
+              id={
+                files.state.selectedItems.length > 1
+                  ? 'multiple-context-menu'
+                  : 'file-context-menu'
+              }
               collect={() => {
                 return { id, type: 'file', name }
               }}

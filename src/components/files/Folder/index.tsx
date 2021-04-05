@@ -60,7 +60,11 @@ const Folder = ({
       >
         <div>
           <ContextMenuTrigger
-            id="folder-context-menu"
+            id={
+              state.selectedItems.length > 1
+                ? 'multiple-context-menu'
+                : 'folder-context-menu'
+            }
             collect={() => {
               return { id, type: 'folder', name }
             }}
