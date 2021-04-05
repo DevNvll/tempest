@@ -54,7 +54,7 @@
     "react-use": "^17.2.1",
     "sass": "^1.27.0",
     "sharp": "^0.27.2",
-    "tailwindcss": "^2.0.1",
+    "tailwindcss": "^2.1.0",
     "uuid": "^8.3.2",
     "zustand": "^3.3.3"
   },
