@@ -25,6 +25,7 @@ apiClient.interceptors.request.use(async (config) => {
             })
           })
         } else {
+          console.log('Bearer ' + session.getIdToken().getJwtToken())
           config.headers.Authorization =
             'Bearer ' + session.getIdToken().getJwtToken()
           resolve(config)

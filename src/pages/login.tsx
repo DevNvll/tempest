@@ -1,5 +1,7 @@
 import Button from '@components/UI/Button'
 import Input from '@components/UI/Input'
+import { getCognitoErrorMessage } from '@lib/auth/getCognitoErrorMessage'
+import { useUI } from '@store/ui'
 import { Auth } from 'aws-amplify'
 import { Form, Formik } from 'formik'
 import Link from 'next/link'
@@ -7,6 +9,7 @@ import { useRouter } from 'next/router'
 
 export default function LoginPage() {
   const router = useRouter()
+  const ui = useUI()
 
   async function handleSubmit({ email, password }) {
     try {
@@ -14,8 +17,10 @@ export default function LoginPage() {
         username: email,
         password: password
       })
-      router.replace('/')
+      router.push('/')
     } catch (err) {
+      const message = getCognitoErrorMessage(err)
+      ui.toast(message, 'error')
       console.log(err)
     }
   }

@@ -120,7 +120,7 @@ export default function Sidebar() {
       </div>
       <div className="px-4 self-end w-full">
         <div className="mb-4 w-full">
-          <div className="flex flex-col bg-gray-500 rounded p-4">
+          <div className="flex flex-col border border-gray-500 rounded p-4">
             <div>
               <p>Storage</p>
             </div>

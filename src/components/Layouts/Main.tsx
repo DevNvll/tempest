@@ -63,7 +63,7 @@ export default function MainLayout({ children }) {
         title="Exsign Studio"
         description="Uma equipe de designers e desenvolvedores de ponta com o objetivo de trazer a experiência e design que seus usuários merecem."
       />
-      <div className="flex flex-row min-h-screen overflow-hidden bg-gray-700 relative max-w-full">
+      <div className="flex flex-row min-h-screen bg-gray-700 relative max-w-full">
         <nav className="w-[72px] bg-gray-700 h-full absolute top-0 justify-between flex flex-col py-4">
           <ul className="flex flex-col flex-grow space-y-4">
             <SidebarItem label="Home" Icon={HiOutlineHome} href="/" />
