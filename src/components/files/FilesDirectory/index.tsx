@@ -202,7 +202,7 @@ export default function FilesDirectory() {
           <Sidebar />
         </div>
 
-        <div className="flex flex-col w-full flex-grow h-full  relative">
+        <div className="flex flex-col w-full h-full relative">
           <input {...getInputProps} className="hidden" />
           <div className="flex flex-col w-full">
             <div className="h-16 w-full flex items-center px-4">
@@ -223,8 +223,11 @@ export default function FilesDirectory() {
             </div>
             <UploadProgress />
           </div>
-          <div className="flex flex-row h-full" {...getRootProps()}>
-            <div className="w-full h-full">
+          <div
+            className="flex flex-row h-[calc(100%-64px)] "
+            {...getRootProps()}
+          >
+            <div className="w-full h-full overflow-y-scroll">
               <DndContext
                 sensors={sensors}
                 collisionDetection={(entries, target) => {
@@ -314,7 +317,7 @@ export default function FilesDirectory() {
                         },
                         id: 'background',
                         className: clsx(
-                          'h-full p-4 transition duration-500 easi-in-out',
+                          'h-full p-4 transition duration-500 ease-in-out ',
                           {
                             'transform scale-[.98]': isDragActive
                           }
