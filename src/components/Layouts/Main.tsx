@@ -94,7 +94,9 @@ export default function MainLayout({ children }) {
             </li>
           </div>
         </nav>
-        <div className="bg-gray-900 flex-grow pl-[72px]">{children}</div>
+        <div className="bg-gray-900 flex-grow pl-[72px] h-screen">
+          {children}
+        </div>
       </div>
     </>
   ) : (
