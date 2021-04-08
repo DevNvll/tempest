@@ -12,7 +12,7 @@ export default function FolderContextMenu({ handleContextClick }) {
     <>
       <ContextMenu
         id="folder-context-menu"
-        className="bg-gray-500 rounded overflow-hidden shadow-lg w-56 z-20"
+        className="z-20 w-56 overflow-hidden bg-gray-500 rounded shadow-lg"
       >
         <MenuItem
           onClick={handleContextClick}

@@ -1,5 +1,26 @@
+let makeShadow = (name, rgb) => {
+  let obj = {}
+
+  obj[name + '-xs'] = `0 0 0 1px rgba(${rgb}, 0.05)`
+  obj[name + '-xs'] = `0 0 0 1px rgba(${rgb}, 0.05)`
+  obj[name + '-sm'] = `0 1px 2px 0 rgba(${rgb}, 0.05)`
+  obj[name] = `0 1px 3px 0 rgba(${rgb}, 0.1), 0 1px 2px 0 rgba(${rgb}, 0.06)`
+  obj[
+    name + '-md'
+  ] = `0 4px 6px -1px rgba(${rgb}, 0.1), 0 2px 4px -1px rgba(${rgb}, 0.06)`
+  obj[
+    name + '-lg'
+  ] = `25px 25px 35px 6px rgba(${rgb}, 0.1), 0 5px 30px -5px rgba(${rgb}, 0.8)`
+  obj[
+    name + '-xl'
+  ] = `0 25px 35px -5px rgba(${rgb}, 0.1), 0 5px 30px -5px rgba(${rgb}, 0.6)`
+  obj[name + '-2xl'] = `0 55px 80px -12px rgba(${rgb}, 0.6)`
+  obj[name + '-inner'] = `inset 0 2px 4px 0 rgba(${rgb}, 0.06)`
+  return obj
+}
+
 module.exports = {
-  mode: "jit",
+  mode: 'jit',
   purge: [
     './src/components/**/*.{js,ts,jsx,tsx}',
     './src/pages/**/*.{js,ts,jsx,tsx}'
@@ -10,6 +31,19 @@ module.exports = {
   darkMode: 'media',
   theme: {
     extend: {
+      boxShadow: {
+        ...makeShadow('cool-gray', '71, 85, 104'),
+        ...makeShadow('gray', '75, 85, 98'),
+        ...makeShadow('red', '223, 39, 44'),
+        ...makeShadow('orange', '207, 57, 24'),
+        ...makeShadow('yellow', '158, 88, 28'),
+        ...makeShadow('green', '16, 122, 87'),
+        ...makeShadow('teal', '13, 116, 128'),
+        ...makeShadow('blue', '29, 100, 236'),
+        ...makeShadow('indigo', '87, 81, 230'),
+        ...makeShadow('purple', '125, 59, 236'),
+        ...makeShadow('pink', '213, 34, 105')
+      },
       gridTemplateColumns: {
         'fill-40': 'repeat(auto-fit, 10rem)'
       },
@@ -28,23 +62,21 @@ module.exports = {
           300: '#363b3d',
           400: '#2b2e30',
           500: '#242729',
-          600: '#161718',
-          700: '#1E2024',
-          800: '#151617',
-          900: '#131414'
+          600: '#4C566A',
+          700: '#1B1C1F',
+          800: '#17171A',
+          900: '#0F0F0F'
         },
         primary: {
-          DEFAULT: '#4C1CAF',
-          50: '#CFBCF4',
-          100: '#BFA6F1',
-          200: '#9F7AEA',
-          300: '#7F4EE3',
-          400: '#5F23DB',
-          500: '#4C1CAF',
-          600: '#391583',
-          700: '#260E57',
-          800: '#13072B',
-          900: '#000000'
+          100: '#dcd0f0',
+          200: '#b9a1e0',
+          300: '#9671d1',
+          400: '#7342c1',
+          500: '#5013b2',
+          600: '#400f8e',
+          700: '#300b6b',
+          800: '#200847',
+          900: '#100424'
         },
         secondary: {
           100: '#D8E5FB',

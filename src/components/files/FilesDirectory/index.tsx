@@ -6,7 +6,14 @@ import { useFiles } from '@store/files'
 import { useUpload } from '@store/upload'
 
 import { useRouter } from 'next/router'
-import { MouseEvent, useCallback, useEffect, useMemo, useRef } from 'react'
+import {
+  MouseEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react'
 import { ContextMenu, ContextMenuTrigger, hideMenu } from 'react-contextmenu'
 import { HiChevronLeft, HiPlus } from 'react-icons/hi'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -48,6 +55,8 @@ export default function FilesDirectory() {
   const preview = usePreview()
   const ui = useUI()
   const upload = useUpload()
+
+  const [isDragging, setDragging] = useState(false)
 
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -185,7 +194,7 @@ export default function FilesDirectory() {
   return (
     <>
       <div
-        className="h-full w-full flex flex-row bg-gray-900"
+        className="flex flex-row w-full h-full bg-gray-900"
         onClick={function (e: React.MouseEvent<HTMLDivElement>) {
           const target = e.target as HTMLDivElement
           if (
@@ -198,14 +207,14 @@ export default function FilesDirectory() {
         }}
         ref={mouseRef}
       >
-        <div className="flex flex-col py-4 w-[260px] h-full bg-gray-800">
+        <div className="flex flex-col py-4 w-[260px] h-full">
           <Sidebar />
         </div>
 
-        <div className="flex flex-col w-full h-full relative">
+        <div className="relative flex flex-col w-full h-full">
           <input {...getInputProps} className="hidden" />
           <div className="flex flex-col w-full">
-            <div className="h-16 w-full flex items-center px-4">
+            <div className="flex items-center w-full h-16 px-4">
               <div className="flex flex-row space-x-2">
                 <button
                   disabled={!folder || folder?.root}
@@ -257,9 +266,17 @@ export default function FilesDirectory() {
                   }
                   return null
                 }}
+                onDragCancel={() => {
+                  setDragging(false)
+                }}
+                onDragStart={() => {
+                  setDragging(true)
+                }}
                 onDragEnd={async (e) => {
                   const targetFolderId = e.over?.id
                   const itemId = e.active?.id
+
+                  setDragging(false)
 
                   if (!targetFolderId || !itemId) {
                     return
@@ -319,7 +336,7 @@ export default function FilesDirectory() {
                         className: clsx(
                           'h-full p-4 transition duration-500 ease-in-out ',
                           {
-                            'transform scale-[.98]': isDragActive
+                            'transform scale-[.98]': isDragActive || isDragging
                           }
                         )
                       }}
@@ -361,7 +378,7 @@ export default function FilesDirectory() {
                           })}
                         </div>
                       ) : (
-                        <div className="w-full min-h-full flex flex-col space-y-2 items-center justify-center">
+                        <div className="flex flex-col items-center justify-center w-full min-h-full space-y-2">
                           {mode === 'files' ? (
                             <>
                               <h1 className="text-2xl font-bold">
@@ -372,7 +389,7 @@ export default function FilesDirectory() {
                               </p>
                               <div>
                                 <UploadButton id="directory">
-                                  <div className="px-4 py-2 font-bold bg-primary-300 text-primary-300 bg-opacity-10 rounded-xl text-center cursor-pointer flex flex-row items-center justify-center space-x-2">
+                                  <div className="flex flex-row items-center justify-center px-4 py-2 space-x-2 font-bold text-center cursor-pointer bg-primary-300 text-primary-300 bg-opacity-10 rounded-xl">
                                     <HiPlus />
                                     <span>Upload File</span>
                                   </div>
@@ -394,11 +411,11 @@ export default function FilesDirectory() {
                     </ContextMenuTrigger>
                   </>
                 ) : !notFound ? (
-                  <div className="w-full min-h-full flex items-center justify-center">
+                  <div className="flex items-center justify-center w-full min-h-full">
                     <BarLoader color="#4C1CAF" />
                   </div>
                 ) : (
-                  <div className="w-full min-h-full flex items-center justify-center">
+                  <div className="flex items-center justify-center w-full min-h-full">
                     <h1>Folder not found</h1>
                   </div>
                 )}
