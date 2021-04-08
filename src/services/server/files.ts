@@ -41,69 +41,83 @@ export async function getFolderContent(
     })
   }
 
-  let folders = await db.folder.findMany({
-    where: {
-      AND: {
-        parentId: folder.id,
-        userId: userId,
-        isDeleted: false
+  let [folders, files] = await Promise.all([
+    db.folder.findMany({
+      where: {
+        AND: {
+          parentId: folder.id,
+          userId: userId,
+          isDeleted: false
+        }
+      },
+      include: {
+        Folder: {
+          select: {
+            id: true
+          }
+        },
+        File: {
+          select: {
+            id: true
+          }
+        }
       }
-    }
-  })
-
-  folders = await Promise.all(
-    folders.map(async (f: any) => {
-      try {
-        const subFolders = await db.folder.findMany({
-          where: {
-            parent: {
-              id: f.id
-            }
-          }
-        })
-        const files = await db.file.findMany({
-          where: {
-            parent: {
-              id: f.id
-            }
-          }
-        })
-        f.type = 'folder'
-        f.numberOfItems = [...subFolders, ...files].length
-      } catch (err) {
-      } finally {
-        return f
+    }),
+    db.file.findMany({
+      where: {
+        AND: {
+          parentId: folder.id,
+          userId: userId,
+          isDeleted: false
+        }
       }
     })
-  )
+  ])
 
-  let files = await db.file.findMany({
-    where: {
-      AND: {
-        parentId: folder.id,
-        userId: userId,
-        isDeleted: false
-      }
-    }
-  })
-
-  files = await Promise.all(
-    files.map(async (f: any) => {
-      try {
-        const fileInfo = await getFileInfo(f.storageKey)
-        f.size = humanFileSize(fileInfo.ContentLength)
-        f.type = 'file'
-      } catch (err) {
-      } finally {
-        return f
-      }
-    })
-  )
+  let [filesWithSize, foldersWithChildrenCount] = await Promise.all([
+    Promise.all(
+      files.map(async (f: any) => {
+        try {
+          const fileInfo = await getFileInfo(f.storageKey)
+          f.size = humanFileSize(fileInfo.ContentLength)
+          f.type = 'file'
+        } catch (err) {
+        } finally {
+          return f
+        }
+      })
+    ),
+    Promise.all(
+      folders.map(async (f: any) => {
+        try {
+          const subFolders = await db.folder.findMany({
+            where: {
+              parent: {
+                id: f.id
+              }
+            }
+          })
+          const files = await db.file.findMany({
+            where: {
+              parent: {
+                id: f.id
+              }
+            }
+          })
+          f.type = 'folder'
+          f.numberOfItems = [...subFolders, ...files].length
+        } catch (err) {
+        } finally {
+          return f
+        }
+      })
+    )
+  ])
 
   const content = {
     ...(!folder.isRoot ? { ...folder } : { ...folder, root: true }),
-    folders,
-    files
+    folders: foldersWithChildrenCount,
+    files: filesWithSize
   }
   return content
 }
