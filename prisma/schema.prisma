@@ -50,15 +50,22 @@ model File {
   isDeleted   Boolean  @default(false)
   Shared      Shared?  @relation(fields: [sharedId], references: [id])
   sharedId    String?
+  size        Float    @default(0)
 }
 
 model Shared {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  folders   Folder[]
-  files     File[]
-  code      String   @unique @default(cuid())
-  user      User     @relation(fields: [userId], references: [id])
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  folder    Folder?
+  file      File?
+  code      String    @unique @default(cuid())
+  user      User      @relation(fields: [userId], references: [id])
   userId    String
+  type      ShareType
+}
+
+enum ShareType {
+  File
+  Folder
 }

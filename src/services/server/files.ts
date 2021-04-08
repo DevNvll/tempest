@@ -76,10 +76,9 @@ export async function getFolderContent(
 
   let [filesWithSize, foldersWithChildrenCount] = await Promise.all([
     Promise.all(
-      files.map(async (f: any) => {
+      files.map(async (f: any, i) => {
         try {
-          const fileInfo = await getFileInfo(f.storageKey)
-          f.size = humanFileSize(fileInfo.ContentLength)
+          f.size = humanFileSize(f.size)
           f.type = 'file'
         } catch (err) {
         } finally {
@@ -316,4 +315,21 @@ export async function getRecentFiles(userId: string, limit?: number) {
     }
   })
   return files
+}
+
+export async function folderIsChildOf(folderId: string, parentId: string) {
+  const folder = await db.$queryRaw(`
+    WITH RECURSIVE cte AS(
+      SELECT *, id AS topparent 
+      FROM "Folder" t 
+      WHERE t."parentId" = '${parentId}' -- shared folder id
+    UNION ALL
+      SELECT t.*, c.topparent 
+      FROM "Folder" t JOIN cte c ON c.id = t."parentId"
+      WHERE t.id <> t."parentId"
+    )
+    SELECT id FROM cte WHERE cte.id = '${folderId}' -- folder id
+  `)
+
+  return Boolean(folder)
 }

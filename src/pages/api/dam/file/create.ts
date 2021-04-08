@@ -4,7 +4,7 @@ import { authenticated } from '@lib/auth/authenticatedMiddleware'
 import nc from 'next-connect'
 import { NextApiResponse } from 'next'
 import { EnhancedRequestWithAuth } from '@typings/api'
-import { getRootFolder } from '@services/server/files'
+import { getFileInfo, getRootFolder } from '@services/server/files'
 
 const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
   .use(authenticated)
@@ -20,6 +20,8 @@ const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
       parentId = folder.id
     }
 
+    const fileData = await getFileInfo(key)
+
     const file = await db.file.create({
       data: {
         userId,
@@ -28,7 +30,8 @@ const handler = nc<EnhancedRequestWithAuth, NextApiResponse>()
         mimeSubtype,
         name,
         storageKey: key,
-        parentId
+        parentId,
+        size: fileData.ContentLength
       }
     })
 
