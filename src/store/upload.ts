@@ -10,6 +10,7 @@ interface UploadStore extends State {
   items: number
   addItem: (file: File, parentId: string, onReady: () => void) => void
   next: () => void
+  currentUpload: any
 }
 
 const useUpload = create<UploadStore>(
@@ -19,6 +20,7 @@ const useUpload = create<UploadStore>(
     progress: 0,
     uploading: false,
     items: 0,
+    currentUpload: null,
     addItem: (file: File, parentId: string, onReady) => {
       set((state) => {
         state.queue.push({ file, parentId, onReady })
